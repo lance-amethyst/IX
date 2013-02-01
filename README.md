@@ -2,15 +2,15 @@ IX is a set of Javascript library.
 
 ix.js
 ixutils.js
-xtpl.js
-xclass.js
-xuibase.js
-xui.js
+ixtpl.js
+ixclass.js
+ixuibase.js
+ixui.js
 
 ixui.css
 
 ixui.png
-xuibg.png
+ixuibg.png
 
 ==
 
