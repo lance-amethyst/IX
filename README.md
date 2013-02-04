@@ -1,4 +1,4 @@
-IX is a set of Javascript library.
+IX is a set of Javascript library by Lance GE.
 
 ix.js
 ixutils.js
@@ -12,6 +12,3 @@ ixui.css
 ixui.png
 ixuibg.png
 
-==
-
-Lance's Javascript library
