@@ -8,9 +8,9 @@
  * 		IX_SCRIPT_NAME
  */
 var isInDom = window && ("navigator" in window);
-var ixGlobal = IX_DOM_MODE?window: globals;
+var ixGlobal = isInDom?window: globals;
 
-IX_GLOBAL.IX_GLOBAL = ixGlobal;
+IX_GLOBAL = ixGlobal;
 IX_GLOBAL.IX_DOM_MODE = isInDom;
 
 IX_GLOBAL.IX_VERSION = "1.0";
@@ -22,7 +22,7 @@ var ixGlobalName = (isInDom ? "window" : "global");
 
 function isEmptyFn(str){return (str===undefined||str===null||str==="");}
 function isUndefined(obj){return typeof(obj) === 'undefined';}
-function isValidString(obj){return typeof(obj) === 'string' && str!="";}
+function isValidString(obj){return typeof(obj) === 'string' && obj!="";}
 function isGlobalNS(obj, name){return (obj == ixGlobal) && (name == ixGlobalName);}
 
 /**  
@@ -316,7 +316,7 @@ function __objLoop(obj, names, fn){
 	return flag;
 }
 function objLoopFn(obj, nsname, fn){
-	return isValidString(nsname) ? _objLoop(obj, nsname.split("."), fn) : undefined;
+	return isValidString(nsname) ? __objLoop(obj, nsname.split("."), fn) : undefined;
 }
 function assignToObjFn(obj, nsname, value){
 	if (!isValidString(nsname) || isGlobalNS(obj, nsname))
@@ -330,7 +330,7 @@ function assignToObjFn(obj, nsname, value){
 		nsObj[lastName] = value;
 }
 
-var nsUtil = {
+var nsUtils = {
 	ns : function(nsname){objLoopFn(ixGlobal, nsname, _nsCheck);},
 	nsExisted : function(nsname){return objLoopFn(ixGlobal, nsname, _nsExisted);},
 	getNS : function(nsname){return objLoopFn(ixGlobal, nsname, _nsGet);},

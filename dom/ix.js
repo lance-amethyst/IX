@@ -123,7 +123,7 @@ IX.extend(IX, {
 	isOpera : checkUA("opera"),   
 	isChrome : checkUA("chrome"),  
 	isFirefox : checkUA("firefox") && !checkUA("webkit"),  
-	isSafari : window.openDatabase && checkUA("safari"),
+	isSafari : window.openDatabase && checkUA("safari") && checkUA('version'),
 	
 	isMSIE : checkUA("msie") && !checkUA("opera"), 
 	isMSIE7 : document.all && checkUA("msie 7.0"),
