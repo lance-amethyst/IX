@@ -121,7 +121,7 @@ IX.Array = {
 				_isFound = _isFound || _isSame; 
 				return !_isSame; // remove it;
 			});
-			if (!isFound)
+			if (!_isFound)
 				return false;
 			_arr1 = remove(_arr1, elem, fn);
 		}

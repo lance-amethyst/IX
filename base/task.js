@@ -1,6 +1,6 @@
 (function(){
 /** 
- * IX.Task is a Class to schedule task to similar a thread :
+ * IX.ITask is a Class to schedule task to similar a thread :
  * @Params
  	taskFn(times) : real task function 
  	interval : the interval to execute task. In ms. 
@@ -12,7 +12,7 @@
  * 
  */
 var getTimeInMS = IX.getTimeInMS;
-IX.Task = function(taskFn, interval, times){
+IX.ITask = function(taskFn, interval, times){
 	var ts = -1, h = null, execFlag = false;
 	var _times = 0, _total = isNaN(times)?-1:times;
 
