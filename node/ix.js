@@ -26,7 +26,7 @@ var childProcess = require('child_process');
 
 function chownFileOwner(filePath){
 	if (global.processOwner)
-		childProcess.exec("chown -R " + processOwner  + " " + filePath);
+		childProcess.exec("chown -R " + global.processOwner  + " " + filePath);
 }
 function _safeMkdirSync(_path){
 	var dirs = _path.split("/"), currentDir = "";
@@ -50,7 +50,8 @@ function saveFileIfNotExist(filePath, filename, fileData, cbFn){
 		_safeMkdirSync(filePath);
 		chownFileOwner(filePath);
 	}
-	debugIsAllow("file") && IX.log("SAVE " +  fileName + ":" + fileData.length);
+	if (debugIsAllow("file"))
+		IX.log("SAVE " +  fileName + ":" + fileData.length);
 	fs.writeFile(fileName, fileData, {
 		mode : 0755
 	},function(err) {
@@ -74,7 +75,8 @@ function safeChkFile(filePath, filename){
 }
 function safeRenameAs(oldFilename, filePath, filename){
 	var fileName = safeChkFile(filePath, filename);
-	debugIsAllow("file")&& IX.log("try RENAME  " +  fileName + " from " + oldFilename);
+	if (debugIsAllow("file"))
+		IX.log("try RENAME  " +  fileName + " from " + oldFilename);
 	if (!fileName)
 		return fs.unlinkSync(oldFilename);
 	fs.renameSync(oldFilename, fileName);
@@ -82,7 +84,8 @@ function safeRenameAs(oldFilename, filePath, filename){
 }
 function safeCopyTo(srcFile, filePath, filename){
 	var fileName = safeChkFile(filePath, filename);
-	debugIsAllow("file")&& IX.log("try COPY  " +  fileName + " from " + srcFile);
+	if (debugIsAllow("file"))
+		IX.log("try COPY  " +  fileName + " from " + srcFile);
 	if (!fileName)
 		return;
 	fs.createReadStream(srcFile).pipe(fs.createWriteStream(fileName));
@@ -91,7 +94,7 @@ function safeCopyTo(srcFile, filePath, filename){
 
 var logDir = "/tmp/ix";
 function setLogPath(logPath) {
-	if (isEmptyFn(logPath))
+	if (IX.isEmpty(logPath))
 		return;
 	var arr = logPath.split("/");
 	arr.pop();
@@ -110,7 +113,7 @@ function setLogPath(logPath) {
 function _log(type, msg) {
 	var dstr = IX.getTimeStrInMS();
 	var _msg =  "[" + dstr + "]:" + msg;
-	if ("Test" in global && Test.debug != "file")
+	if ("Test" in global && global.Test.debug != "file")
 		return console.log(_msg);
 	
 	var fname = logDir + "." + type.toLowerCase();

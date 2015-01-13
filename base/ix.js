@@ -25,7 +25,7 @@ var ixGlobalName = (isInDom ? "window" : "global");
 
 function isEmptyFn(str){return (str===undefined||str===null||str==="");}
 function isUndefined(obj){return typeof(obj) === 'undefined';}
-function isValidString(obj){return typeof(obj) === 'string' && obj!="";}
+function isValidString(obj){return typeof(obj) === 'string' && obj!=="";}
 function isGlobalNS(obj, name){return (obj == ixGlobal) && (name == ixGlobalName);}
 
 /**  
@@ -35,20 +35,20 @@ function isGlobalNS(obj, name){return (obj == ixGlobal) && (name == ixGlobalName
 	reset(list) :  reset the allowed information's regex
  * }
  */
-var debugCacheList = new Array();
+var debugCacheList = [];
 IX_GLOBAL.IXDebug = {
 	isAllow : function(name) {
 		if (!IX_DEBUG_MODE)
 			return false;
 		var l = debugCacheList.length;
-		for ( var i = 0; i < l; i++) {
-			if (debugCacheList[i] == "all" || new RegExp(debugCacheList[i], "i").test(name))
+		for ( var i = 0; i < l; i++){
+			if(debugCacheList[i] === "all" || new RegExp(debugCacheList[i], "i").test(name))
 				return true;
 		}
 		return false;
 	}, 
 	clear : function() {debugCacheList = [];},
-	reset : function(list){debugCacheList = list;}
+	reset : function(list) {debugCacheList = list;}
 };
 IX_GLOBAL.debugIsAllow = IXDebug.isAllow;
 
@@ -212,13 +212,13 @@ var BaseTypes = {
 };
 function isTypeFn(type){
 	return function(obj){
-		return (obj != null && (typeof(obj)==type || obj instanceof BaseTypes[type]));
+		return (obj !== null && (typeof(obj)==type || obj instanceof BaseTypes[type]));
 	};
 }
 function isStaticType(obj){
-	return (obj === null || (typeof(obj) != 'object') 
-			|| (obj instanceof String) || (obj instanceof Number) || (obj instanceof Boolean) 
-			|| (obj instanceof Date) || (obj instanceof RegExp)) ;
+	return (obj === null || (typeof(obj) !== 'object') ||
+			(obj instanceof String) || (obj instanceof Number) || (obj instanceof Boolean) ||
+			(obj instanceof Date) || (obj instanceof RegExp)) ;
 }
 var typeUtils = {
 	isEmpty : isEmptyFn,
@@ -268,30 +268,30 @@ function cloneFn(obj) {
 	return clonedObj;
 }
 function deepCompare(src, dest) {
-    if (isEmptyFn(src) || isEmptyFn(dest)) 
-    	return src === dst;
-    if (src == dest)
-    	return true;
-    var typeDest = typeof(dest), typeSrc = typeof(src);
+	if (isEmptyFn(src) || isEmptyFn(dest))
+		return src === dest;
+	if (src == dest)
+		return true;
+	var typeDest = typeof(dest), typeSrc = typeof(src);
 	if (typeDest != typeSrc)
 		return false;
-	if (typeDest == 'undefined')
+	if (typeDest === 'undefined')
 		return true;
-	if (typeDest == 'function')
+	if (typeDest === 'function')
 		return src.toString() != dest.toString();
-  	if (typeDest != 'object')
-  		return src == dst;
-  	
-  	var pname = null;
-    for (pname in src) {
-    	if (!deepCompare(src[pname], dest[pname]))
-    		return false;
-    }
-    for (pname in dest) {
-        if (!(pname in src) && !isUndefined(dest[pname]))
-            return false;
-    }
-    return true;
+	if (typeDest !== 'object')
+		return src == dest;
+
+	var pname = null;
+	for (pname in src) {
+		if (!deepCompare(src[pname], dest[pname]))
+			return false;
+	}
+	for (pname in dest) {
+		if (!(pname in src) && !isUndefined(dest[pname]))
+			return false;
+	}
+	return true;
 }
 
 function _nsCheck(name, obj){
@@ -307,7 +307,7 @@ function __objLoop(obj, names, fn){
 	var nsObj = obj, flag = true, i=0, len = names.length; 
 	while(i<len && flag && nsObj){
 		var curname = names[i];
-		if (curname == "") {
+		if (curname === "") {
 			console.error("invalid NS name:" + names.join("."));
 			return undefined;
 		}
@@ -326,9 +326,9 @@ function assignToObjFn(obj, nsname, value){
 		return;
 	var names = nsname.split(".");
 	var lastName = names.pop();
-	if (names.length==0) 
+	if (names.length === 0) 
 		return ;
-	var nsObj = _objLoop(obj, names, _nsGet);
+	var nsObj = __objLoop(obj, names, _nsGet);
 	if (nsObj)
 		nsObj[lastName] = value;
 }
@@ -346,7 +346,7 @@ var propertyUtils = {
 	setProperty : function(obj, pname, v){assignToObjFn(obj, pname, v);},
 	getPropertyAsFunction:function(obj, fname){
 		var fn = objLoopFn(obj, fname, _nsGet);
-		return typeUtil.isFn(fn) ? fn : emptyFn;
+		return typeUtils.isFn(fn) ? fn : emptyFn;
 	},
 	clone :cloneFn,
 	deepCompare: deepCompare
@@ -354,10 +354,10 @@ var propertyUtils = {
 
 // Loop/Iterate Utilities definitions :
 function loopFn(varr, sIdx, eIdx, acc0, fun, isAscLoop) {
-	if (varr==null ||varr.length==0)
+	if (varr===null ||varr.length===0)
 		return acc0;
 	var len=varr.length;
-	eIdx = (eIdx==-1)?len: eIdx;
+	eIdx = (eIdx===-1)?len: eIdx;
 	if (sIdx>=eIdx)
 		return acc0;
 	
@@ -393,7 +393,9 @@ var loopUtils = {
 			loopFn(varr, 0, -1, 0, fun, true);
 		}catch(_ex){}
 	},
-	partLoop:function(varr,sIdx,eIdx, acc0, fun){return loopFn(varr, sIdx, eIdx, acc0, fun, true);},
+	partLoop:function(varr,sIdx,eIdx, acc0, fun){
+		return loopFn(varr, sIdx, eIdx, acc0, fun, true);
+	},
 	
 	map : function(arr, fun){
 		return loopFn(arr, 0, -1, [], function(acc, item, idx){
@@ -424,18 +426,18 @@ function checkReadyFn(condFn, execFn, period, _config){
 	var maxAge = $XP(_config, "maxAge", null), expireFn = $XF(_config, "expire"), startTick = null;
 	if (isNaN(maxAge))
 		maxAge = null;
-	if (maxAge != null)
+	if (maxAge !== null)
 		startTick = getTimeInMS();
 	function _checkFn(){			
 		if (condFn())
 			execFn();
-		else if (maxAge!=null && (getTimeInMS()-startTick)>maxAge)
+		else if (maxAge!==null && (getTimeInMS()-startTick)>maxAge)
 			expireFn();
 		else
 			setTimeout(_checkFn, _period);
 	}
 	_checkFn();
-};
+}
 var execUtils = {
 	getTimeInMS : getTimeInMS,
 	getTimeStrInMS : getTimeStrInMS,
@@ -449,7 +451,7 @@ var execUtils = {
 		}
 	},
 	execute : function(fname, args) {
-		var fn = nsUtil.getNS(fname);
+		var fn = nsUtils.getNS(fname);
 		if (typeUtils.isFn(fn))
 			fn.apply(null, args);
 	},
@@ -461,8 +463,8 @@ var execUtils = {
 // Other Utilities definitions;
 function ifLineIntersect(line1, line2){return (line2.min-line1.max) * (line2.max-line1.min) < 0;}
 function ifRectIntersect(rect1, rect2){
-	return ifLineIntersect({min : rect1.minx, max: rect1.maxx}, {min : rect2.minx, max: rect2.maxx})
-		&& ifLineIntersect({min : rect1.miny, max: rect1.maxy}, {min : rect2.miny, max: rect2.maxy});
+	return ifLineIntersect({min : rect1.minx, max: rect1.maxx}, {min : rect2.minx, max: rect2.maxx}) &&
+		ifLineIntersect({min : rect1.miny, max: rect1.maxy}, {min : rect2.miny, max: rect2.maxy});
 }
 var mathUtils = {
 	inRange : function(x, x1, x2){return (x-x1)*(x-x2)<=0;},
@@ -472,7 +474,7 @@ var mathUtils = {
 
 //Extend/Inherit Utilities definitions;
 var extendFn = function(dst, src) {
-	if (dst==null || dst==undefined)
+	if (dst===null || dst===undefined)
 		dst = {};
 	for (var pname in src)
 		dst[pname] = src[pname];
@@ -492,14 +494,15 @@ var extendUtils = {
 };
 
 function _log(type, msg){
-	var dstr = getTimStrInMS();
-	console[type=="ERR"? "error" : "log"](dstr + " : " + msg);
+	var dstr = getTimeStrInMS();
+	console[type==="ERR"? "error" : "log"](dstr + " : " + msg);
 }
 var errUtils = {
 	err : function(errmsg){
 		_log("ERR", errmsg);
-		if (IX_DEBUG_MODE && alert) 
-			alert(errmsg);
+		if (IX_DEBUG_MODE && IX.isFn(IX_GLOBAL.alert)){
+			IX_GLOBAL.alert(errmsg);
+		}
 	},
 	log : function(msg){if (IX_DEBUG_MODE) _log("LOG", msg);}
 };
@@ -527,7 +530,7 @@ function regSplit(str, reg){
 	var _splitArr = [], _matchArr = str.match(reg), _len = _matchArr ? _matchArr.length : 0;
 	for(var i = 0;i < _len;i++){
 		var _arr = _matchArr[i], _idx = str.indexOf(_arr);
-		if(_idx == -1)
+		if(_idx === -1)
 			continue;
 		_splitArr.push(str.substring(0,_idx));
 		str = str.substring(_idx + _arr.length);
@@ -561,7 +564,7 @@ function substrByLength(str, maxLength){
 		stringLength : (strLen - simpleCharLen) * 2 + simpleCharLen
 	};
 }
-var UrlRegEx = /\w+:\/\/[\w.]+[^\s\"\'\<\>\{\}]*/g;
+var UrlRegEx = /http(s)?:\/\/[\w.]+[^\s]*/g;
 var EmailPattern = /^[_a-zA-Z0-9.]+[\-_a-zA-Z0-9.]*@(?:[_a-zA-Z0-9]+\.)+[a-zA-Z0-9]{2,4}$/;
 var ScriptPattern = new RegExp( '(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)', 'img');
 var FormPattern = new RegExp( '(?:<form.*?>)|(?:<\/form>)', 'img'); 
@@ -570,7 +573,7 @@ var ReplaceKeyPattern = /{[^{}]*}/g;
 
 IX.extend(String.prototype, {
 	camelize: function(){ return this.replace(/\-(\w)/ig, function(B, A) {return A.toUpperCase();}); },
-	capitalize: function(){ return this.charAt(0).toUpperCase() + _str.substring(1).toLowerCase(); },
+	capitalize: function(){ return this.charAt(0).toUpperCase() + this.substring(1).toLowerCase(); },
 	replaceAll:function(os, ns){return this.replace(new RegExp(os,"gm"),ns);},
 	loopReplace:function(varr){return IX.loop(varr, this, function(acc, item){
 		return acc.replaceAll(item[0], item[1]);
@@ -586,11 +589,11 @@ IX.extend(String.prototype, {
 	stripFormTag:function(){return this.replace(FormPattern, '');},
 	strip:function() {return this.replace(/^\s+/, '').replace(/\s+$/, '');},
 	substrByLength : function(len){ return substrByLength(this.toString(), len); },
-	isSpaces:function() {return (this.replace(/(\n)|(\r)|(\t)/g, "").strip().length==0);},
+	isSpaces:function() {return (this.replace(/(\n)|(\r)|(\t)/g, "").strip().length===0);},
 
 	isPassword : function(){
 		var pwd =  this.trim();
-		return pwd.length == this.length && this.length > 5 && this.length < 21;
+		return pwd.length === this.length && this.length > 5 && this.length < 21;
 	},
 	isEmail : function(){
 		var email = this.trim();

@@ -27,10 +27,10 @@ function getEqualFn(equalFn){
 	};
 }
 function indexOf(arr, matchFn) {
-	if(!arr || arr.length==0)
+	if(!arr || arr.length===0)
 		return -1;
 	var len = arr.length;
-	for (var i=0; i<len; i++) 
+	for (var i=0; i<len; i++)
 		if (matchFn(arr[i])) return i;
 	return -1;
 }
@@ -65,7 +65,7 @@ function toSet(arr, equalFn) {
 
 IX.Array = {
 	init : function(len, defV){
-		var arr = new Array();
+		var arr = [];
 		for (var i=0; i<len; i++)
 			arr.push(IX.clone(defV));
 		return arr;
@@ -95,7 +95,7 @@ IX.Array = {
 	//              return ["a", "g", "k", "l", "d"];
 	// (arr, 1, 0, ["g", "k", "l"]) : remove 0 elems and add 3 elems; 
 	//              return ["a", "g", "k", "l", "b", "c", "d"];
-	splice:function(arr, start, deleteCount, insertArray) {
+	splice: function(arr, start, deleteCount, insertArray){
 		var count = isNaN(deleteCount)?1:deleteCount;
 		var len = arr.length;
 		if (start<0 || start>len || count<0 || (start+count)>len)
@@ -106,26 +106,27 @@ IX.Array = {
 		
 	toSet : toSet,
 	isSameSet:function(arr1, arr2, equalFn){
-		if (arr1==null && arr2==null)
+		if (arr1===null && arr2===null)
 			return true;
-		if (arr1==null || arr2==null)
+		if (arr1===null || arr2===null)
 			return false;
 		var fn = getEqualFn(equalFn);
 		var _arr1 = arr1, _arr2 = arr2;
 		var elem = null, _isFound = false;
+		function _validItem(item){
+			var _isSame = fn(elem, item);
+			_isFound = _isFound || _isSame;
+			return !_isSame; // remove it;
+		}
 		while(_arr1.length>0 && _arr2.length>0){
 			elem = _arr1[0];
 			_isFound = false;
-			_arr2 = compact(_arr2, function(item){
-				var _isSame = fn(elem, item);
-				_isFound = _isFound || _isSame; 
-				return !_isSame; // remove it;
-			});
+			_arr2 = compact(_arr2, _validItem);
 			if (!_isFound)
 				return false;
 			_arr1 = remove(_arr1, elem, fn);
 		}
-		return _arr1.length ==0 && _arr2.length == 0;
+		return _arr1.length === 0 && _arr2.length === 0;
 	},
 	merge2Set: function(arr1, arr2, equalFn){
 		return toSet([].concat(arr1, arr2), equalFn);

@@ -110,13 +110,9 @@ $Xc = IX.Cookie;
  * }
  *
  */
-var ua = navigator.userAgent.toLowerCase();
-function checkUA(keywords){return ua.indexOf(keywords)!=-1;}
+var ua = window.navigator.userAgent.toLowerCase();
+function checkUA(keywords){return ua.indexOf(keywords)!==-1;}
 
-var ua = navigator.userAgent.toLowerCase();
-var checkUA = function(keywords){
-        return ua.indexOf(keywords)>=0;
-};
 var _isIPad = checkUA('ipad'), _isIPhone = checkUA('iphone');
 
 IX.extend(IX, {
@@ -138,7 +134,7 @@ IX.extend(IX, {
 	getUrlParam : function(key, defV){
 		var v = defV;
 		IX.loopbreak(window.location.search.substring(1).split("&"), function(item){
-			if(item.indexOf(key+"=")!=0)
+			if(item.indexOf(key+"=")!==0)
 				return;
 			v = item.substring(key.length+1);
 			throw v;
@@ -169,7 +165,8 @@ function EventBindManager(){
 		if (e && !("target" in e) )
 			e.target = e.srcElement; // for IE hack
 		IX.iterate(ht.get(ehKey), function(fn){
-			IX.isFn(fn) &&  fn(e);
+			if (IX.isFn(fn))
+				fn(e);
 		});
 	}
 	function _bind(el, evtName, handler){
@@ -188,7 +185,7 @@ function EventBindManager(){
 		var evtKeys = el.data_ixEvtKeys;
 		if (!evtKeys)
 			return;
-		if (!evtKets[evtName])
+		if (!evtKeys[evtName])
 			return;
 		var ehKey = evtKeys.id + "." + evtName;
 		ht.remove(ehKey, handler);
@@ -265,7 +262,7 @@ function _winBindHandlers(handlers, isUnbind){
 		if (IX.isFn(handlers[evtName]))
 			bindFn(window, evtName, handlers[evtName]);
 	});
-};
+}
 IX.win =  {
 	bind : function(handlers){_winBindHandlers(handlers);},
 	unbind : function(handlerIds){_winBindHandlers(handlerIds, true);},
@@ -288,9 +285,9 @@ IX.Xml = {
 		str = IX.isString(str)?str:"";
 		var doc = null;
 		if ("DOMParser" in window) {
-			doc = (new DOMParser()).parseFromString(str, "text/xml");
+			doc = (new window.DOMParser()).parseFromString(str, "text/xml");
 		}else if ("ActiveXObject" in window){
-			doc=new ActiveXObject("Microsoft.XMLDOM");
+			doc=new window.ActiveXObject("Microsoft.XMLDOM");
 			doc.async="false";
 			doc.loadXML(str);
 		} else {
@@ -299,11 +296,11 @@ IX.Xml = {
 		return doc;
 	},
 	getXmlString:function(xmlDoc){
-		if(!xmlDoc==null){
+		if(!xmlDoc){
 			return "";
 		}
 		if(IX.nsExisted("document.implementation.createDocument")) {
-			return (new XMLSerializer()).serializeToString(xmlDoc);
+			return (new window.XMLSerializer()).serializeToString(xmlDoc);
 		}else if ("ActiveXObject" in window){
 			return xmlDoc.xml;
 		} else {
@@ -331,8 +328,8 @@ IX.Xml = {
 IX.Dom = (function(){
 	var loopFn = function(node, type, checkFn, valueFn) {
 		if (!node) return valueFn(null);
-		var cnode = ("firstChild" in node)?node[type=="first"?"firstChild":"nextSibling"]:null;
-		while(cnode!=null && !checkFn(cnode))
+		var cnode = ("firstChild" in node)?node[type==="first"?"firstChild":"nextSibling"]:null;
+		while(cnode!==null && !checkFn(cnode))
 			cnode = cnode.nextSibling;
 		return valueFn(cnode);
 	};
@@ -345,7 +342,9 @@ IX.Dom = (function(){
 				}
 			):null;
 	};
-	var textFn = IX.isMSIE?function(node){return node? node.innerText:"";}:function(node){return node?node.textContent:"";};
+	var textFn = IX.isMSIE ?
+		function(node){return node? node.innerText:"";} :
+		function(node){return node?node.textContent:"";};
 	
 	var cdataFn = function(node){
 		if (!node)
@@ -412,10 +411,10 @@ IX.Dom = (function(){
 		isAncestor : function(node, ancestor){
 			var el = node;
 			while(el){				
-				if (el== ancestor)
+				if (el == ancestor)
 					return true;
 				var nodeName = el.nodeName.toLowerCase();
-				el = (nodeName=="body")? null: el.parentNode;
+				el = (nodeName==="body")? null: el.parentNode;
 			}
 			return false;
 		},
@@ -427,7 +426,7 @@ IX.Dom = (function(){
 				var nodeName = el.nodeName.toLowerCase();
 				if (nodeName==tagName)
 					break;
-				el =(nodeName=="body")? null: el.parentNode;
+				el =(nodeName==="body")? null: el.parentNode;
 			}
 			return el;
 		},
@@ -444,7 +443,7 @@ window.$XD = IX.Dom;
 */
 IX.HtmlDocument = (function(){
 	var hasFn = function(el, clzName){
-		return el!=null && ("className" in el)&& IX.Array.isFound(clzName, (el.className+"").split(" "));
+		return el!==null && ("className" in el)&& IX.Array.isFound(clzName, (el.className+"").split(" "));
 	};
 	var removeFn = function(el, clzName){
 		if (!el) return;
@@ -469,39 +468,37 @@ IX.HtmlDocument = (function(){
 	};
 
 	var getStyle = function(_elem,styles){
-        var _value=null, elem= IX.get(_elem);
-        styles = styles != "float" ? styles : document.defaultView ? "float" : "styleFloat";
-        if(styles == "opacity"){
-        	if(elem.filters){//IE, two ways to get opacity because two ways to set opacity and must be set opacity before get
-        		if(elem.filters.length > 0){
-		            try {
-		                _value = elem.filters['DXImageTransform.Microsoft.Alpha'].opacity / 100;
-		            }catch(e) {
-		                try {
-		                    _value = elem.filters('alpha').opacity;
-		                } catch(err){}
-		            }
-	        	}else{
-	        		_value = "1";
-	        	}
-        	}else{//w3c
-        		_value = elem.style.opacity;
-        	}
-        }else{
-	        _value=elem.style[styles] || elem.style[styles.camelize()];
-	        if(!_value){
-	             if (document.defaultView && document.defaultView.getComputedStyle) {
-	                var _css=document.defaultView.getComputedStyle(elem, null);
-	                _value= _css ? _css.getPropertyValue(styles) : null;
-	             }else if (elem.currentStyle){
-	                _value = elem.currentStyle[styles.camelize()];
-	             }
-	        }
-	        if(_value=="auto" && IX.Array.indexOf(["width","height"], function(_i){return styles == _i;}) > -1 && elem.style.display!="none"){
-	            _value=elem["offset"+styles.capitalize()]+"px";
-	        }
+		var _value=null, elem= IX.get(_elem);
+		styles = styles !== "float" ? styles : document.defaultView ? "float" : "styleFloat";
+		if(styles === "opacity"){
+			if(elem.filters){//IE, two ways to get opacity because two ways to set opacity and must be set opacity before get
+				if(elem.filters.length > 0){
+					try {
+						_value = elem.filters['DXImageTransform.Microsoft.Alpha'].opacity / 100;
+					}catch(e) {
+						try {
+							_value = elem.filters('alpha').opacity;
+						} catch(err){}
+					}
+				}else
+					_value = "1";
+			}else//w3c
+				_value = elem.style.opacity;
+		}else{
+			_value=elem.style[styles] || elem.style[styles.camelize()];
+			if(!_value){
+				if (document.defaultView && document.defaultView.getComputedStyle) {
+					var _css=document.defaultView.getComputedStyle(elem, null);
+					_value= _css ? _css.getPropertyValue(styles) : null;
+				}else if (elem.currentStyle){
+					_value = elem.currentStyle[styles.camelize()];
+				}
+			}
+			if(_value==="auto" && IX.Array.indexOf(["width","height"], function(_i){return styles == _i;}) > -1 && 
+					elem.style.display!="none")
+				_value=elem["offset"+styles.capitalize()]+"px";
         }
-        return _value=="auto" ? null :_value;
+        return _value==="auto" ? null :_value;
     };
 	return {
 		getStyle : getStyle,
@@ -525,7 +522,7 @@ IX.HtmlDocument = (function(){
 			if (!node)
 				return false;
 			var el =  node;
-			while(el!=null){
+			while(el!==null){
 				if (el==pnode)
 					return true;
 				el = el.parentNode;
@@ -538,7 +535,7 @@ IX.HtmlDocument = (function(){
 			if (!node)
 				return null;
 			var el =  node;
-			while(el!=null && !hasFn(el, clzName)){
+			while(el!==null && !hasFn(el, clzName)){
 				el = el.parentNode;
 				if (el && el.nodeName.toLowerCase()=="body")
 					el = null;
@@ -558,25 +555,23 @@ IX.HtmlDocument = (function(){
 			};
 		},
 		getScroll: function(_dom){
-            if (_dom && _dom.nodeType != 9){//not document
-            	return {
-                    scrollTop: _dom.scrollTop,
-                    scrollLeft: _dom.scrollLeft
-                };
-            }
-            var _window = !_dom ? window : _dom.defaultView || _dom.parentWindow;
-            return { scrollTop: _window.pageYOffset
-				    || _window.document.documentElement.scrollTop
-				    || _window.document.body.scrollTop
-				    || 0,
-                scrollLeft: _window.pageXOffset
-				    || _window.document.documentElement.scrollLeft
-				    || _window.document.body.scrollLeft
-				    || 0
+			if (_dom && _dom.nodeType != 9)//not document
+				return {
+					scrollTop: _dom.scrollTop,
+					scrollLeft: _dom.scrollLeft
+				};
+			var _window = !_dom ? window : _dom.defaultView || _dom.parentWindow;
+			return {
+				scrollTop: _window.pageYOffset ||
+					_window.document.documentElement.scrollTop ||
+					_window.document.body.scrollTop || 0,
+				scrollLeft: _window.pageXOffset ||
+					_window.document.documentElement.scrollLeft ||
+					_window.document.body.scrollLeft || 0
             };
 		},
 		getZIndex : function(el) {
-			var style = null, zIndex = null;
+			var style = null;
 			while(el && el.tagName.toLowerCase()!="body"){
 				style = IX.getComputedStyle(el);				
 				if (style.zIndex !="auto")
@@ -588,7 +583,7 @@ IX.HtmlDocument = (function(){
 		/* ri : [ left, top, width, height] */
 		rect : function(el, ri){
 			IX.iterate(["left", "top", "width", "height"], function(attr, idx){
-				if (ri[idx]!=null)
+				if (ri[idx]!==null)
 					el.style[attr] = ri[idx] + "px";
 			});
 		},
@@ -683,11 +678,11 @@ var eventUtil = {
 		else
 			window.event.returnValue = false;
 		return false;
-	},
-	stop: function(e){
-		eventUtil.preventDefault(e);
-		eventUtil.stopPropagation(e);
 	}
+};
+eventUtil.stop =function(e){
+	eventUtil.preventDefault(e);
+	eventUtil.stopPropagation(e);
 };
 IX.ns("IX.Util");
 IX.Util.Event = eventUtil;
