@@ -20,7 +20,7 @@
  */	
 var itoh = '0123456789ABCDEF';
 function generateUUID() {
-	var  s = new Array() ;
+	var  s = [];
 	var i=0;
 	for (i = 0; i <36; i++)
 		s[i] = Math.floor(Math.random()*0x10);

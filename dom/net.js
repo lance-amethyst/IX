@@ -90,14 +90,14 @@
 
 function createAjaxProxy(){
 	if (window.XMLHttpRequest)
-		return new XMLHttpRequest();
+		return new window.XMLHttpRequest();
 	if (typeof ActiveXObject == "undefined")
 		return null;
 	// IE
 	var xmlhttpObj = ['MSXML2.XMLHTTP.3.0','MSXML2.XMLHTTP','Microsoft.XMLHTTP'];
 	for (var i = 0, len = xmlhttpObj.length; i < len; i++) {
 		try{
-			var proxy =  new ActiveXObject(xmlhttpObj[i]);
+			var proxy =  new window.ActiveXObject(xmlhttpObj[i]);
 			if (proxy)
 				return proxy;
 		}catch(e){}
@@ -107,11 +107,13 @@ function createAjaxProxy(){
 var isPhoneGapOnAppleHD = IX.nsExisted("IX.PhoneGap") && IX.isAppleHD;
 function ajaxLoading(){
 	//Show statusBar network status for iOS
-	isPhoneGapOnAppleHD && (window.location="myspecialurl:start");
+	if (isPhoneGapOnAppleHD)
+		window.location="myspecialurl:start";
 }
 function ajaxLoaded(){
 	//Cancel statusBar network status for iOS
-	isPhoneGapOnAppleHD && (window.location="myspecialurl:end");
+	if(isPhoneGapOnAppleHD)
+		window.location="myspecialurl:end";
 }
 
 var r20 = /%20/g,
@@ -153,7 +155,7 @@ function buildAjaxParams( prefix, obj, traditional, add ) {
 			else
 				buildAjaxParams( prefix + "[" + ( typeof v === "object" || IX.isArray(v) ? i : "" ) + "]", v, traditional, add );
 		});
-	} else if ( !traditional && obj != null && typeof obj === "object" ) {
+	} else if ( !traditional && obj !== null && typeof obj === "object" ) {
 		if ( IX.isArray( obj ) || IX.isEmpty( obj ) )
 			add( prefix, "" );
 		else {
@@ -169,12 +171,14 @@ function ajaxProxyStateChange(proxy, callback, failCbFn){
 	var timer = proxy.timer;
 	if (proxy.readyState == 4) {
 		if(proxy.status == 200){
-			debugIsAllow('ajax') && IX.log("ajaxProxyStateChange: "+ proxy.status + " " + proxy.responseText);
+			if (debugIsAllow('ajax'))
+				IX.log("ajaxProxyStateChange: "+ proxy.status + " " + proxy.responseText);
 			clearTimeout(timer);
 			proxy.timer = null;
 			callback(proxy.responseText, proxy);
 		}else{
-			timer && clearTimeout(timer);
+			if (timer)
+				clearTimeout(timer);
 			failCbFn({
 				retCode: 0,
 				ajaxStatus: proxy.status
@@ -188,6 +192,7 @@ function ajaxProxyStateChange(proxy, callback, failCbFn){
 }
 
 var DefaultAjaxContentType = "application/x-www-form-urlencoded";
+var ajaxArray = [];
 function ajaxCall(cfg){
 	var type = cfg.type || "GET";
 	var failFn =  $XF(cfg, "fail");
@@ -242,7 +247,7 @@ IX.Ajax = {
 		ajaxCall({
 			url: cfg.url,
 			type: cfg.type,
-			contentType : _contentType,
+			contentType : cfg.contentType || null,
 			headers : IX.inherit({
 				"Accept": "application/json"
 			}, cfg.headers),
@@ -268,6 +273,7 @@ IX.Ajax = {
 			proxy = null;
 		});
 		ajaxHT.clear();
+		ajaxArray = []; 
 	}
 };
 
@@ -285,8 +291,9 @@ function _afterLoadJsFn(script, nextFn){
 	}
 	// IE
 	script.onreadystatechange= function () {
-		debugIsAllow('net') && IX.log("STATE: [" +script.src +"]:" +  this.readyState);
-		if (script.readyState == 'complete' || script.readyState=='loaded') {
+		if (debugIsAllow('net'))
+			IX.log("STATE: [" +script.src +"]:" +  this.readyState);
+		if (script.readyState == 'complete' || script.readyState == 'loaded') {
 			script.onreadystatechange = null;
 			nextFn();
 		}
@@ -303,7 +310,7 @@ function loadJsFn(durl, nextFn){
 }
 function loadJsFilesInSeqFn(jsFiles, nextFn){
 	var _nextFn = IX.isFn(nextFn)?nextFn:IX.emptyFn;
-	if (!jsFiles || jsFiles.length==0)
+	if (!jsFiles || jsFiles.length===0)
 		return _nextFn();
 	var n = jsFiles.length;
 	var idx =0;
@@ -355,7 +362,7 @@ IX.Net = {
 
 // IX.ajaxEngine && IX.urlEngine
 function defaultParamFn(_name, _params){return _params;}
-function defaulRspFn(data, cbFn){IX.isFn(cbFn) && cbFn(data);}
+function defaulRspFn(data, cbFn){if (IX.isFn(cbFn)) cbFn(data);}
 function getFunProp(_cfg, _name, defFn){
 	var _fn = $XP(_cfg, _name);
 	return IX.isFn(_fn)?_fn :defFn;
@@ -367,12 +374,12 @@ function urlRouteFn(routeDef, ifAjax){
 		return null;
 	var route = ifAjax ? {
 		channel : $XP(routeDef, "channel"),
-		type : $XP(callerRouteDef, "type", "POST"),
-		dataType : $XP(callerRouteDef, "dataType", "form"),
-		onsuccess : getFunProp(callerRouteDef, "onsuccess", defaulRspFn),
-		preAjax : getFunProp(callerRouteDef, "preAjax", defaultParamFn),
-		postAjax : $XF(callerRouteDef, "postAjax"),
-		onfail : getFunProp(callerRouteDef, "onfail", defaulRspFn)
+		type : $XP(routeDef, "type", "POST"),
+		dataType : $XP(routeDef, "dataType", "form"),
+		onsuccess : getFunProp(routeDef, "onsuccess", defaulRspFn),
+		preAjax : getFunProp(routeDef, "preAjax", defaultParamFn),
+		postAjax : $XF(routeDef, "postAjax"),
+		onfail : getFunProp(routeDef, "onfail", defaulRspFn)
 	} : {};
 	route.url = _url;
 	route.urlType = $XP(routeDef, "urlType", "base") + "Url";	
@@ -420,7 +427,8 @@ function tryLockChannel(channel){
 	if ($X(id))
 		return false;
 	IX.createDiv(id, "ajax-channel");
-	debugIsAllow("channel") && IX.log ("lock channel: " + channel);
+	if (debugIsAllow("channel"))
+		IX.log ("lock channel: " + channel);
 	return true;
 }
 function unlockChannel(channel){
@@ -429,7 +437,8 @@ function unlockChannel(channel){
 	var el = $X("ajaxChannel_" + channel);
 	if (el)
 		el.parentNode.removeChild(el);
-	debugIsAllow("channel") && IX.log ("unlock channel: " + channel);
+	if (debugIsAllow("channel"))
+		IX.log ("unlock channel: " + channel);
 }
 function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
 	var channel = $XP(params, "_channel_", _caller.channel);
@@ -465,7 +474,7 @@ function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
 
 var _ajaxEngineFn = null;
 function initAjaxEngine(cfg){
-	if (ifAjax && IX.isFn(cfg.ajaxFn))
+	if (cfg && IX.isFn(cfg.ajaxFn))
 		_ajaxEngineFn = cfg.ajaxFn;
 	urlFac.init(cfg);		
 }

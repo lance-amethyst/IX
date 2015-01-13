@@ -82,34 +82,33 @@ IX.ITemplate = function(config){
 		var v = $XP(data, name);
 		return IX.isEmpty(v)?"":v;
 	}
-	function renderSubFn(acc, item){
-		var t = item.charAt(0);
-		var _name = item.substring(1, item.length-1);
-		if (t=='{') {
-			var v = getProps(data, _name);
-			if (v!=null)
-				acc.push([item, v]);			
-		} else if (t=='#') {
-			var h = IX.map($XP(data, _name, []), function(itm, idx) {
-				var idata = IX.inherit(itm, {idx: idx});
-				return renderFn(tplId+ "." + _name, idata);
-			}).join("");
-			acc.push([item, h]);
-		}
-		return acc;
-	}
 	function renderFn(tplId, data){
 		var tpl = tplMgr[tplId];
 		if (!tpl) {
 			IX.err("can't find templete by name: " + tplId);
 			return "";
 		}
-		return tpl.tpl.loopReplace(IX.loop(tpl.list, [], renderSubFn));
+		return tpl.tpl.loopReplace(IX.loop(tpl.list, [], function(acc, item){
+			var t = item.charAt(0);
+			var _name = item.substring(1, item.length-1);
+			if (t=='{') {
+				var v = getProps(data, _name);
+				if (v!==null)
+					acc.push([item, v]);			
+			} else if (t=='#') {
+				var h = IX.map($XP(data, _name, []), function(itm, idx) {
+					var idata = IX.inherit(itm, {idx: idx});
+					return renderFn(tplId+ "." + _name, idata);
+				}).join("");
+				acc.push([item, h]);
+			}
+			return acc;
+		}));
 	}
 	function _render(tplId, data){
 		var id = "root";		
 		if (!IX.isEmpty(tplId)) 
-			id = tplId.indexOf("root")==0 ? tplId : ("root." + tplId);
+			id = tplId.indexOf("root")===0 ? tplId : ("root." + tplId);
 		
 		return renderFn(id, data?data:_dataFn(id)).replace(/\[(\{|\})\]/g, "$1");
 	}
@@ -118,10 +117,10 @@ IX.ITemplate = function(config){
 		if (!tpl) return "";
 		
 		var s = tpl.tpl,  list = tpl.list;
-		if(!list || list.length == 0)
+		if(!list || list.length === 0)
 			return _id == tplId ? s : ('<tpl id="' + _id.split(".").pop() + '">' + s + '</tpl>');
 		
-		return IX.loop(list, x, function(acc, item){
+		return IX.loop(list, s, function(acc, item){
 			var ci = item.replace(/#/g, "");
 			return acc.replace(new RegExp(item, "img"),  _getSubTpl(_id + "." + ci));
 		});
@@ -132,7 +131,7 @@ IX.ITemplate = function(config){
 		getTpl: function(tplId){
 			if (IX.isEmpty(tplId) || tplId == "root")
 				return _tpl;
-			var _id = tplId.indexOf("root.") == 0 ? tplId.substring(5) : tplId;
+			var _id = tplId.indexOf("root.") === 0 ? tplId.substring(5) : tplId;
 			return _getSubTpl(_id, _id);
 		}
 	};

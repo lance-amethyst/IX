@@ -29,9 +29,11 @@ module.exports = function (grunt) {
 					IXDebug : true,
 					debugIsAllow : true,
 					IX_DEBUG_MODE :true,
+					IX_SCRIPT_NAME : true,
 					IX_VERSION : true,
 					"$X" : true,
 					"$XA" : true,
+					"$XD" : true,
 					"$XP" : true,
 					"$XE" : true,
 					"$XF" : true
@@ -45,15 +47,17 @@ module.exports = function (grunt) {
 		uglify : {
 			options: {  
 				banner:' /*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n',
-				beautify: {ascii_only:true}
+				beautify: {ascii_only:true},
+				maxLineLen : 8192
 			},
+			
 			dom :{
 				src:'dist/dom/ix.js',  
-				dest:'dist/dom/ix-min.js'  
+				dest:'dist/dom/ix.min.js'  
 			},
 			node :{  
 				src:'dist/node/ix.js',  
-				dest:'dist/node/ix-min.js'  
+				dest:'dist/node/ix.min.js'  
 			}
 		}
 	});
@@ -61,6 +65,17 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	
+	grunt.registerTask('autotest', 'code unit test.', function() {  
+		try{
+			grunt.log.writeln('start autotest ...'); 
+			var testTask = require("./testcase/test.js");
+			testTask();
+			grunt.log.writeln('Autotest done.'); 
+		}catch(ex) {
+			return false;
+		}
+	}); 
 
-	grunt.registerTask('default', ['jshint:files', 'concat', 'jshint:afterconcat', 'uglify']);
+	grunt.registerTask('default', ['jshint:files', 'autotest', 'concat', 'jshint:afterconcat', 'uglify']);
 };

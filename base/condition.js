@@ -27,7 +27,8 @@ function checkDone(len, keys, results){
 function getLocalLog(type){
 	var tips = "Condition." + type + "[" + IX.id() + "]:";
 	return function _log(info){
-		debugIsAllow("condition") && IX.log(tips + info);
+		if (debugIsAllow("condition"))
+			IX.log(tips + info);
 	};
 }
 
@@ -95,21 +96,20 @@ IX.parallel = function(_name, _fn){
 	var keys = [], fns = {}, errs = {}, results = {};
 
 	function workDone(name, err, result, doneFn){
-		errs[name] = err==null?null:(new Error(name+ ":" + err));
+		errs[name] = err===null?null:(new Error(name+ ":" + err));
 		results[name] = result;
 		if (checkDone(keys.length, keys, results)){
 			_mylog("done ---------------");
 			doneFn(errs, results);
 		}
 	}
-	function execEach(name){
+	function _exec(doneFn){keys.forEach(function(name){
 		_mylog("do : ==============" + name);
 		fns[name](function(err, result){
 			_mylog("done: ==============" + name);
 			workDone(name, err, result, doneFn);
 		});
-	}
-	function _exec(doneFn){keys.forEach(execEach);}
+	});}
 	function _on(name, fn){
 		if (IX.isFn(fn)) {
 			keys.push(name);
@@ -154,7 +154,7 @@ function sequential(_name, _fn){
 			return doneFn(errs, results);
 		}
 		results[name] = result;
-		if (0 == keys.length) {
+		if (keys.length === 0) {
 			_mylog("done ---------------");
 			doneFn(null, results);
 		} else
@@ -169,7 +169,7 @@ function sequential(_name, _fn){
 		});
 	}
 	function _exec(doneFn){
-		if (keys.length==0)
+		if (keys.length===0)
 			return doneFn({}, {});
 		doNext(doneFn);
 	}

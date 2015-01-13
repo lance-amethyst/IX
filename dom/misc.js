@@ -19,7 +19,8 @@ function _getImageDataUrl(img,cw,ch, w, h){
 	var ctx = canvas.getContext("2d");
 	ctx.drawImage(img, (cw-w)/2, (ch-h)/2, w, h);
 	var dataURL = canvas.toDataURL("image/png");
-	delete canvas;
+	canvas.parentNode.removeChild(canvas);
+	canvas = null;
 	return dataURL;
 }
 function getRatioWH(w, h, rw, rh){
@@ -28,36 +29,34 @@ function getRatioWH(w, h, rw, rh){
 		return [rw, rh];
 	wratio = Math.min(wratio, hratio);
 	return [rw * wratio, rh *wratio];		
-};
+}
 
 function getImageData(imgEl, cfg){
 	if (!imgEl)
 		return null;
-	var img = new Image();
+	var img = new window.Image();
 	img.src = imgEl.src;
 	var wh =getRatioWH($XP(cfg, "width", img.width), $XP(cfg, "height", img.height), img.width, img.height);
-	if (wh[0] * wh[1] == 0)
+	if (wh[0] * wh[1] === 0)
 		return null;
 	var dataURL = _getImageDataUrl(img, wh[0], wh[1], wh[0], wh[1]);
-	delete img;
 	return {
 		url : imgEl.src,
 		w: wh[0], 
 		h: wh[1],
 		data : dataURL
 	};
-};
+}
 function setImageData(imgEl, imgData, keepRatio){
 	if (!imgEl)
 		return;
-	var img = new Image();
+	var img = new window.Image();
 	img.src = imgData.data;
 	var cwEl = keepRatio?imgEl:img;
 	var wh =getRatioWH(cwEl.width, cwEl.height, img.width, img.height);
 	var dataURL = _getImageDataUrl(img,cwEl.width, cwEl.height, wh[0], wh[1]);
-	delete img;
 	imgEl.src = dataURL;
-};
+}
 IX.ns("IX.Util");
 IX.Util.Image =  {
 	getData : getImageData,

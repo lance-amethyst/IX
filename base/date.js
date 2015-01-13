@@ -63,7 +63,7 @@ function getText4Interval(olderTSInMS, tsInMS) {
 	var interval = (tsInMS -olderTSInMS) / 1000 ;
 	for (var i = IntervalCounts.length-1; i>=0; i--)
 		if (interval >= IntervalCounts[i]){
-			var nstr = i==0 ? "" : Math.round(interval / (i==1?1:IntervalCounts[i]));
+			var nstr = i===0 ? "" : Math.round(interval / (i==1?1:IntervalCounts[i]));
 			return nstr + IntervalUnits[i];
 		}
 }
@@ -71,7 +71,7 @@ function isValidDate(sps, isDate){ // sps: [2012,9, 3] or [13, 30, 0]...
 	var limits = isDate ? FieldLimits4Day : FieldLimits4Time;
 	return sps.length == 3 && IX.loop(sps, true, function(acc, item, idx){
 		if (!acc || isNaN(item) || item.indexOf(".")>=0) return false; // invalid number;
-		if (isDate && idx==0) return true; //  will not check year number;
+		if (isDate && idx===0) return true; //  will not check year number;
 		var n = item * 1 + (isDate ? 0 : 1);
 		return n > 0 && n <= limits[idx];
 	});
@@ -143,7 +143,7 @@ IX.IDate = function(timeInSecond) {
 	}
 	function _toIntvText(_date, showToday){
 		var curTime = getFieldValues(_date, [].concat(Fields4Day, Fields4Week));
-		var strs = new Array();
+		var strs = [];
 		var shouldAppend = false;
 		if (timeValues[0] != curTime[0]){
 			shouldAppend = true;

@@ -74,7 +74,7 @@
  */
 IX.State = {
 	toggle :function(origStat, newStat){
-		return (newStat==undefined)?!origStat : newStat;
+		return (newStat===undefined)?!origStat : newStat;
 	}
 };
 
@@ -113,7 +113,7 @@ IX.IList = function(){
 			_keyList = _keyList.slice(0, idx).concat(_keyList.slice(idx+1));
 	}
 	function appendFn(key){
-		if (!_keyList || _keyList.length == 0)
+		if (!_keyList || _keyList.length === 0)
 			_keyList = [key];
 		else {
 			var idx = indexOfFn(key);
@@ -140,7 +140,7 @@ IX.IList = function(){
 		_keyList = _keyList.slice(0, dstIdx).concat([key], _keyList.slice(idx));
 	}
 	return {
-		isEmpty :function(){return _keyList.length==0;},
+		isEmpty :function(){return _keyList.length===0;},
 		isLast : function(k){return _keyList.length>0 && k==_keyList[_keyList.length-1];},
 		getList : function(){return _keyList;},
 		getSize: function(){return _keyList.length;},
@@ -149,7 +149,7 @@ IX.IList = function(){
 		tryRemove : function(key){removeFn(indexOfFn(key));},
 		append : appendFn,
 		tryAdd :function(key){
-			if (!_keyList || _keyList.length == 0)
+			if (!_keyList || _keyList.length === 0)
 				_keyList = [key];
 			else if (indexOfFn(key) <0)
 				_keyList.push(key);
@@ -221,7 +221,7 @@ IX.IListManager = function() {
 		iterate: function(fn){IX.iterate(_list.getList(), function(item){fn(_super.get(item));}); },
 		getFirst : function() {
 			var arr = _list.getList();
-			if (!arr || arr.length == 0)
+			if (!arr || arr.length === 0)
 				return null;
 			var len = arr.length;
 			for (var i = 0; i < len; i++) {
