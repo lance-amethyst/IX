@@ -6,3 +6,4 @@ deps
 .DS_Store
 .settings
 .project
+node_modules
