@@ -102,7 +102,7 @@ IX.IManager = function(){
 var _IXArrayIndexOf =  IX.Array.indexOf;
 IX.IList = function(){
 	var _keyList = [];
-	
+
 	function indexOfFn(key) {
 		return key ? _IXArrayIndexOf(_keyList, function(item) {
 			return item == key;
@@ -163,15 +163,15 @@ IX.IList = function(){
 IX.I1ToNManager = function(eqFn) {
 	var _eqFn = IX.isFn(eqFn)?eqFn : function(item, value){return item==value;};
 	var _mgr = new IX.IManager();
-	
+
 	var hasEntryFn = function(key) {
 		var list = _mgr.get(key);
-		return list && list.length>0;		
+		return list && list.length>0;
 	};
 	var indexOfFn = function(arr, value) {
 		return _IXArrayIndexOf(arr, function(item){return _eqFn(item, value);});
 	};
-	
+
 	return IX.inherit(_mgr, {
 		hasValue :hasEntryFn,
 		put : function(k, v) {
@@ -187,15 +187,15 @@ IX.I1ToNManager = function(eqFn) {
 			var list = _mgr.get(k);
 			var idx = indexOfFn(list, v);
 			if (idx >= 0)
-				_mgr.register(k, IX.Array.splice(list, idx));	
-		}	
+				_mgr.register(k, IX.Array.splice(list, idx));
+		}
 	});
 };
 IX.IListManager = function() {
 	var _super = new IX.IManager();
 	var _list = new IX.IList();
-	
-	var registerFn = function(key, obj) {		
+
+	var registerFn = function(key, obj) {
 		_super.register(key, obj);
 		var idx = _list.indexOf(key);
 		if (obj) {
@@ -226,7 +226,7 @@ IX.IListManager = function() {
 			var len = arr.length;
 			for (var i = 0; i < len; i++) {
 				var inst = _super.get(arr[i]);
-				if (inst) 
+				if (inst)
 					return inst;
 			}
 			return null;
@@ -235,7 +235,7 @@ IX.IListManager = function() {
 		append : _list.append,
 		insertBefore : _list.insertBefore,
 		remove : function(key) {registerFn(key);},
-		
+
 		clear : function(){
 			_super.clear();
 			_list.clear();
