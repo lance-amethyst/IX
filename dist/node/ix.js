@@ -1,3 +1,13 @@
+/*
+ * IX project 
+ * https://github.com/lance-amethyst/IX
+ *
+ * Copyright (c) 2015 Lance GE, contributors
+ * Licensed under the MIT license.
+ */
+/*
+ * IX Distribution for Node.js
+ */
 (function(){
 /**  
  * IX constant can be access anywhere;

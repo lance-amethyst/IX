@@ -3,11 +3,11 @@ module.exports = function (grunt) {
 		pkg : grunt.file.readJSON("package.json"),
 		concat: {
 			dom: {
-				"src": 'base/ix.js,base/array.js,base/condition.js,base/ds.js,base/misc.js,base/tpl.js,base/task.js,dom/ix.js,dom/net.js,dom/misc.js'.split(","),
+				"src": 'base/hdr.js,dom/hdr.js,base/ix.js,base/array.js,base/condition.js,base/ds.js,base/misc.js,base/tpl.js,base/task.js,dom/ix.js,dom/net.js,dom/misc.js'.split(","),
 				"dest": 'dist/dom/ix.js'
 			},
 			node : {
-				"src": 'base/ix.js,base/array.js,base/condition.js,base/ds.js,base/misc.js,base/tpl.js,base/task.js,node/ix.js'.split(","),
+				"src": 'base/hdr.js,node/hdr.js,base/ix.js,base/array.js,base/condition.js,base/ds.js,base/misc.js,base/tpl.js,base/task.js,node/ix.js'.split(","),
 				"dest": 'dist/node/ix.js'
 			}
 		},
