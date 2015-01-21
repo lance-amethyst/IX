@@ -104,7 +104,7 @@ function iterDir(rootPath, filePath, iterFn){
 	var file = fs.statSync(_path);
 	if (file.isDirectory())
 		(fs.readdirSync(_path) || []).forEach(function(fname){
-			iterDir(rootPath, path + "/" + fname, iterFn);
+			iterDir(rootPath, filePath + "/" + fname, iterFn);
 		}); 
 	else if(file.isFile())
 		iterFn(filePath, _path);
