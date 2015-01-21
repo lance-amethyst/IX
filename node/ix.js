@@ -23,6 +23,7 @@
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
+var crypto = require('crypto');
 var childProcess = require('child_process');
 
 function chownFileOwner(filePath){
@@ -98,6 +99,30 @@ function safeWriteFileSync(filePath, fileData){
 	fs.writeFileSync(filePath, fileData);
 }
 
+function iterDir(rootPath, filePath, iterFn){
+	var _path = rootPath + filePath;
+	var file = fs.statSync(_path);
+	if (file.isDirectory())
+		(fs.readdirSync(_path) || []).forEach(function(fname){
+			iterDir(rootPath, path + "/" + fname, iterFn);
+		}); 
+	else if(file.isFile())
+		iterFn(filePath, _path);
+}
+
+function createDigest(){
+	var d = crypto.createHash('sha1');
+	return {
+		update : function(chunk){d.update(chunk);},
+		end : function(){return d.digest('hex');}
+	};
+}
+function digestOnce(data){
+	var checksum = createDigest();
+	checksum.update(data);
+	return checksum.end();
+}
+
 var logDir = "/tmp/ix";
 function setLogPath(logPath) {
 	if (IX.isEmpty(logPath))
@@ -141,6 +166,10 @@ IX.extend(IX, {
 	safeRenameAs : safeRenameAs,
 	safeCopyTo : safeCopyTo,
 	safeWriteFileSync : safeWriteFileSync,
+	
+	iterDir : iterDir,
+	createDigest :createDigest,
+	digestOnce : digestOnce,
 	
 	setLogPath : setLogPath,
 	err : function(errMsg) {_log("ERR", errMsg);},
