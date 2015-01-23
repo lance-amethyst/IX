@@ -133,7 +133,7 @@ IX.extend(IX, {
 	
 	getUrlParam : function(key, defV){
 		var v = defV;
-		IX.loopbreak(window.location.search.substring(1).split("&"), function(item){
+		IX.iterbreak(window.location.search.substring(1).split("&"), function(item){
 			if(item.indexOf(key+"=")!==0)
 				return;
 			v = item.substring(key.length+1);
