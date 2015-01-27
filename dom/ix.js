@@ -172,13 +172,13 @@ function EventBindManager(){
 	function _bind(el, evtName, handler){
 		var evtKeys = el.data_ixEvtKeys;
 		if (!evtKeys)
-			evtKeys.id = IX.id();
+			evtKeys = {id : IX.id()};
 		var ehKey = evtKeys.id + "." + evtName;
 		if (!evtKeys[evtName]) { // never bind!
-			evtKeys[evtName] = function(evt){return ht.exec(ehKey, evt);};
+			evtKeys[evtName] = function(evt){return _evtWrapper(ehKey, evt);};
 			ix_attachEvent(el, evtName, evtKeys[evtName]);
 		}
-		ht.add(ehKey, handler);
+		ht.put(ehKey, handler);
 		el.data_ixEvtKeys = evtKeys;
 	}
 	function _unbind(el, evtName, handler){

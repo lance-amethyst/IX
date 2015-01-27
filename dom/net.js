@@ -464,9 +464,13 @@ function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
 			unlockChannel(channel);
 			_caller.onfail(data, failFn, params);
 		},
-		error: function(data){
+		error: function(data, errMsg, error){
 			unlockChannel(channel);
-			_caller.onfail(data, failFn, params);
+			console.error(error);
+			_caller.onfail({
+				retCode : 0,
+				err : error.message
+			}, failFn, params);
 		}
 	});
 	_caller.postAjax(_name, params, _cbFn);
