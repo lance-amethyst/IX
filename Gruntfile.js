@@ -1,13 +1,22 @@
+require("./base/ix.js");
+
 module.exports = function (grunt) {
+	function getFilePaths(filenames, basedir){
+		return IX.map(filenames.split(","), function(fname){return basedir + "/" + fname + ".js";});
+	}
+	var commonJsFiles = getFilePaths("ix,array,condition,ds,date,misc,tpl,task", "base");
+	var domJsFiles = getFilePaths("ix,net,misc", "dom");
+	var nodeJsFiles =  getFilePaths("ix", "node");
+
 	grunt.initConfig({
 		pkg : grunt.file.readJSON("package.json"),
 		concat: {
 			dom: {
-				"src": 'base/hdr.js,dom/hdr.js,base/ix.js,base/array.js,base/condition.js,base/ds.js,base/misc.js,base/tpl.js,base/task.js,dom/ix.js,dom/net.js,dom/misc.js'.split(","),
+				"src": ["base/hdr.js", "dom/hdr.js"].concat(commonJsFiles, domJsFiles),
 				"dest": 'dist/dom/ix.js'
 			},
 			node : {
-				"src": 'base/hdr.js,node/hdr.js,base/ix.js,base/array.js,base/condition.js,base/ds.js,base/misc.js,base/tpl.js,base/task.js,node/ix.js'.split(","),
+				"src": ["base/hdr.js", "node/hdr.js"].concat(commonJsFiles, nodeJsFiles),
 				"dest": 'dist/node/ix.js'
 			}
 		},
