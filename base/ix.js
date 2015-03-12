@@ -361,7 +361,7 @@ var propertyUtils = {
 
 // Loop/Iterate Utilities definitions :
 function loopFn(varr, sIdx, eIdx, acc0, fun, isAscLoop) {
-	if (varr===null ||varr.length===0)
+	if (!varr || varr.length===0)
 		return acc0;
 	var len=varr.length;
 	eIdx = (eIdx===-1)?len: eIdx;

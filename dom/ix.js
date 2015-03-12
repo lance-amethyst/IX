@@ -43,6 +43,11 @@ $Xc = IX.Cookie;
  * }
  * 
  * IX.win is an utilities for action on window only: {
+	getScreen() : get current screen status:
+			scroll : [scrollX, scrollY, body.scrollWidth, body.scrollHeight],
+			size : [body.clientWidth, body.clientHeight]
+	//getWindowScrollTop():
+	getScrollY():
 	bind(handlers)
 	unbind (handlerIds)
 	scrollTo(x,y)
@@ -83,15 +88,11 @@ $Xc = IX.Cookie;
 	first(parentEl, clzName) : get parentel, first child node with clzName
 	isAncestor(node, pnode) : check if pnode is ancestor of node;
 	ancestor(node, clzName) : get first ancestor of node which has clzName
-	getWindowScreen() : get current screen status:
-			scroll : [scrollX, scrollY, body.scrollWidth, body.scrollHeight],
-			size : [body.clientWidth, body.clientHeight]
 	getScroll(el) : get el's curre scroll status :
 			scrollTop
 			scrollLeft
 	getZIndex(el) :  get z-index of el
 	rect(el, ri) : set el position and area (ri: [left, top, width, height])
-	getWindowScrollTop():
 	getPosition(el, isFixed) : get position in DOM flow.
 		return [left, top, width, height]
  * }	
@@ -264,6 +265,35 @@ function _winBindHandlers(handlers, isUnbind){
 	});
 }
 IX.win =  {
+	getScreen : function(){
+		var body = document.documentElement;
+		var win = window;
+		var _scrollX = "scrollX" in win?win.scrollX:body.scrollLeft,
+			_scrollY = "scrollX" in win?win.scrollY:body.scrollTop;
+		
+		return {
+			scroll : [_scrollX, _scrollY, body.scrollWidth, body.scrollHeight],
+			size : [body.clientWidth, body.clientHeight]
+		};
+	},
+	// getWindowScrollTop : function() {
+	// 	return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop	|| 0;
+	// },
+	getScrollY : function(){
+		if (typeof window.pageYOffset == 'number')
+			return window.pageYOffset;
+		var doc = window.document;
+		var isCompatMode = (typeof doc.compatMode == 'string') && (doc.compatMode.indexOf('CSS') >= 0);
+		var _scrlTop = isCompatMode && doc.documentElement ? doc.documentElement.getAttribute("scrollTop") : null;
+		if (typeof _scrlTop == 'number')
+			return _scrlTop;
+
+		_scrlTop = doc.body ? doc.body.getAttribute("scrollTop") : null;
+		if (typeof _scrlTop == 'number')
+			return _scrlTop;
+		return 0;
+	},
+
 	bind : function(handlers){_winBindHandlers(handlers);},
 	unbind : function(handlerIds){_winBindHandlers(handlerIds, true);},
 	scrollTo : function(x,y){
@@ -542,18 +572,7 @@ IX.HtmlDocument = (function(){
 			}
 			return el;
 		},
-		
-		getWindowScreen : function(){
-			var body = document.documentElement;
-			var win = window;
-			var _scrollX = "scrollX" in win?win.scrollX:body.scrollLeft,
-				_scrollY = "scrollX" in win?win.scrollY:body.scrollTop;
-			
-			return {
-				scroll : [_scrollX, _scrollY, body.scrollWidth, body.scrollHeight],
-				size : [body.clientWidth, body.clientHeight]
-			};
-		},
+
 		getScroll: function(_dom){
 			if (_dom && _dom.nodeType != 9)//not document
 				return {
@@ -586,9 +605,6 @@ IX.HtmlDocument = (function(){
 				if (ri[idx]!==null)
 					el.style[attr] = ri[idx] + "px";
 			});
-		},
-		getWindowScrollTop : function() {
-			return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop	|| 0;
 		},
 		getPosition : function(el, isFixed){
 			// getBoundingClientRect : Supported by firefox,chrome,IE8+,opera,safari
