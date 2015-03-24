@@ -103,25 +103,39 @@ IX.Date = {
 	getDS : function(){return ds;},
 	getTS : function(){return ts;},
 	isUTC :function(){return _isUTC;},
-	// return YYYY/MM/DD hh:mm:ss 
+	// return YYYY-MM-DD hh:mm:ss 
 	format : _format,
-	// return YYYY/MM/DD
+	// return YYYY-MM-DD
 	formatDate : function(date) {return _format(date, "Date");},
 	// return hh:mm:ss
 	formatTime : function(date) {return _format(date, "Time");},
 	
-	// return YYYY/MM/DD hh:mm:ss 
+	// return YYYY-MM-DD hh:mm:ss 
 	formatStr:function(str) {
 		str = (str + " ").split(" ");
 		return _formatStr(str[0], ds) + " " + _formatStr(str[1], ts);
 	},
-	// return YYYY/MM/DD
+	// return YYYY-MM-DD
 	formatDateStr:function(str){return _formatStr(str, ds);},
 	// return hh:mm:ss
 	formatTimeStr:function(str){return _formatStr(str, ts);},
 	getDateText : getText4Interval,
 		
-	// accept YYYY/MM/DD hh:mm:ss return true/false;
+	formatBySec : function(tickInSec, withTime){
+		return !tickInSec?"":_format(new Date(tickInSec*1000), withTime?"":"Date");
+	},
+	getTickInSec : function(str){
+		var tickInMS = null;
+		if (str && str instanceof Date)
+			tickInMS =  str.getTime();
+		else if (IX.isString(str) && !IX.isEmpty(str)) {
+			var sp = str.replace(/[0-9|:|\ ]/g, '')[0];
+			tickInMS = (new Date(str.replaceAll(sp, "/"))).getTime();
+		}
+		return isNaN(tickInMS) ? null : Math.ceil(tickInMS/1000);
+	},
+
+	// accept YYYY-MM-DD hh:mm:ss return true/false;
 	isValid : function(dateStr, type) {
 		var dt = dateStr.split(" ");
 		if (type=="Date" ||type=="Time")

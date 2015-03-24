@@ -417,7 +417,7 @@ IX.Dom = (function(){
 	return {
 		first:firstFn,
 		next:function(node, tagN){
-			return getFn(node, tagN,"next");
+			return getFn(node, tagN, "next");
 		},
 		cdata:function(node, tagN){
 			return cdataFn(firstFn(node, tagN));
@@ -473,7 +473,7 @@ window.$XD = IX.Dom;
 */
 IX.HtmlDocument = (function(){
 	var hasFn = function(el, clzName){
-		return el!==null && ("className" in el)&& IX.Array.isFound(clzName, (el.className+"").split(" "));
+		return el && ("className" in el)&& IX.Array.isFound(clzName, (el.className+"").split(" "));
 	};
 	var removeFn = function(el, clzName){
 		if (!el) return;
@@ -496,42 +496,23 @@ IX.HtmlDocument = (function(){
 		}
 		return el;
 	};
-
-	var getStyle = function(_elem,styles){
-		var _value=null, elem= IX.get(_elem);
-		styles = styles !== "float" ? styles : document.defaultView ? "float" : "styleFloat";
-		if(styles === "opacity"){
-			if(elem.filters){//IE, two ways to get opacity because two ways to set opacity and must be set opacity before get
-				if(elem.filters.length > 0){
-					try {
-						_value = elem.filters['DXImageTransform.Microsoft.Alpha'].opacity / 100;
-					}catch(e) {
-						try {
-							_value = elem.filters('alpha').opacity;
-						} catch(err){}
-					}
-				}else
-					_value = "1";
-			}else//w3c
-				_value = elem.style.opacity;
-		}else{
-			_value=elem.style[styles] || elem.style[styles.camelize()];
-			if(!_value){
-				if (document.defaultView && document.defaultView.getComputedStyle) {
-					var _css=document.defaultView.getComputedStyle(elem, null);
-					_value= _css ? _css.getPropertyValue(styles) : null;
-				}else if (elem.currentStyle){
-					_value = elem.currentStyle[styles.camelize()];
-				}
-			}
-			if(_value==="auto" && IX.Array.indexOf(["width","height"], function(_i){return styles == _i;}) > -1 && 
-					elem.style.display!="none")
-				_value=elem["offset"+styles.capitalize()]+"px";
-        }
-        return _value==="auto" ? null :_value;
-    };
+	var _getComputeStyle = function(node, styleName){
+		var oStyle = IX.getComputedStyle(node);
+		return oStyle && (styleName in oStyle) ?oStyle[styleName] : null;
+	};
+	var _checkIfFixed = function(node){
+		if (!node)
+			return null;
+		var el = node;
+		while(el && el.tagName.toLowerCase()!="body"){
+			if (_getComputeStyle(el, "position") == "fixed")
+				return true;
+			el = el.parentNode;
+		}
+		return false;
+	};
 	return {
-		getStyle : getStyle,
+		isPositionFixed : _checkIfFixed,
 		hasClass : hasFn,
 		removeClass : removeFn,
 		addClass : addFn,
@@ -704,8 +685,3 @@ IX.ns("IX.Util");
 IX.Util.Event = eventUtil;
 
 })();
-
-
-
-
-

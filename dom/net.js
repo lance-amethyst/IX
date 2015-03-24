@@ -181,6 +181,7 @@ function ajaxProxyStateChange(proxy, callback, failCbFn){
 				clearTimeout(timer);
 			failCbFn({
 				retCode: 0,
+				err : "AJAX fail",
 				ajaxStatus: proxy.status
 				//isTimeout: false
 			}, proxy);
@@ -206,7 +207,7 @@ function ajaxCall(cfg){
 		IX.err("unsupport AJAX. Failed");
 		return failFn({
 			retCode : 0,
-			error: "unsupport AJAX. Failed"
+			err: "unsupport AJAX. Failed"
 		});
 	}
 
@@ -214,6 +215,7 @@ function ajaxCall(cfg){
 	proxy.timer = setTimeout(function(){
 		failFn({
 			retCode: 0,
+			err: "timeout AJAX. Failed",
 			isTimeout: true
 		});	    
 	}, 60000);
@@ -236,7 +238,7 @@ function ajaxCall(cfg){
 	}catch(ex){
 		failFn({
 			retCode : 0,
-			error:ex.message
+			err:ex.message
 		});
 		ajaxLoaded();
 	}
@@ -440,6 +442,11 @@ function unlockChannel(channel){
 	if (debugIsAllow("channel"))
 		IX.log ("unlock channel: " + channel);
 }
+function tryJSONParse(data){
+	if (IX.isString(data))
+		try{return JSON.parse(data);}catch(e){}
+	return data;
+}
 function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
 	var channel = $XP(params, "_channel_", _caller.channel);
 	if (!tryLockChannel(channel))
@@ -458,11 +465,15 @@ function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
 		data : isJson ? JSON.stringify(_data) : _data,
 		success : function(data) {
 			unlockChannel(channel);
-			_caller.onsuccess(data, _cbFn, params);
+			var _data = tryJSONParse(data);
+			if (_data.retCode!=1)
+				_caller.onfail(_data, failFn, params);
+			else
+				_caller.onsuccess(_data, _cbFn, params);
 		},
 		fail: function(data){
 			unlockChannel(channel);
-			_caller.onfail(data, failFn, params);
+			_caller.onfail(tryJSONParse(data), failFn, params);
 		},
 		error: function(data, errMsg, error){
 			unlockChannel(channel);
