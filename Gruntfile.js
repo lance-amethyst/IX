@@ -1,4 +1,5 @@
 require("./base/ix.js");
+var fs = require('fs');
 
 module.exports = function (grunt) {
 	function getFilePaths(filenames, basedir){
@@ -8,15 +9,18 @@ module.exports = function (grunt) {
 	var domJsFiles = getFilePaths("ix,net,misc", "dom");
 	var nodeJsFiles =  getFilePaths("ix", "node");
 
+	var hdrStr = fs.readFileSync("base/hdr.js").toString();
+	fs.writeFileSync("dist/hdr.js", hdrStr.replace("DATE", IX.getTimeStrInMS()));
+
 	grunt.initConfig({
 		pkg : grunt.file.readJSON("package.json"),
 		concat: {
 			dom: {
-				"src": ["base/hdr.js", "dom/hdr.js"].concat(commonJsFiles, domJsFiles),
+				"src": ["dist/hdr.js", "dom/hdr.js"].concat(commonJsFiles, domJsFiles),
 				"dest": 'dist/dom/ix.js'
 			},
 			node : {
-				"src": ["base/hdr.js", "node/hdr.js"].concat(commonJsFiles, nodeJsFiles),
+				"src": ["dist/hdr.js", "node/hdr.js"].concat(commonJsFiles, nodeJsFiles),
 				"dest": 'dist/node/ix.js'
 			}
 		},
@@ -55,7 +59,7 @@ module.exports = function (grunt) {
 		},
 		uglify : {
 			options: {  
-				banner:' /*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n',
+				banner:' /*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd hh:MM:ss") %> */\n',
 				beautify: {ascii_only:true},
 				maxLineLen : 8192
 			},

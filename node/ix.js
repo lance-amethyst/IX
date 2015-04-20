@@ -4,15 +4,15 @@
  * 
  * File Utilities:
  	safeMkdirSync(path) : create folder for path
- 	saveFileIfNotExist(path, name, data, cbFn) : save data only if path/name not existed.
+	saveFileIfNotExist(path, name, data, cbFn) : save data only if path/name not existed.
 	safeChkFileSync(dir, subdir, filename) : make sure filePath existed and return null if filename existed. 
 	safeRenameAsSync(oldFilename, dir, subdir, filename) : check if filePath/filename existed, 
 			if yes, remove oldFilename only; else rename it to new path.
 	safeCopyToSync(srcFile, dir, subdir, filename) :check if filePath/filename existed, 
 			if yes, do noting; else copy it to new path.
 	safeWriteFileSync(filePath, fileData) :
-	
-	iterDir : iterDir,
+	iterDirSync(rootPath, filePath, iterFn),
+
 	createDigest :createDigest,
 	digestOnce : digestOnce,
  * Error/Log Utilities:
@@ -151,6 +151,7 @@ function _log(type, msg) {
 		return console.log(_msg);
 	
 	var fname = logFile + "." + type.toLowerCase();
+	fs.appendFileSync(fname, _msg + "\n");
 	try{
 		var fstat = fs.statSync(fname);
 		if (fstat && fstat.size > 10000000) // log file size is over 10M, rename file; 
@@ -158,7 +159,6 @@ function _log(type, msg) {
 	}catch(ex){
 		console.error("Exception as rename to log file " +  fname + "." + dstr + " : \n" + ex);
 	}
-	fs.appendFileSync(fname, _msg + "\n");
 }
 
 IX.extend(IX, {
