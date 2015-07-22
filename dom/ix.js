@@ -116,6 +116,19 @@ function checkUA(keywords){return ua.indexOf(keywords)!==-1;}
 
 var _isIPad = checkUA('ipad'), _isIPhone = checkUA('iphone');
 
+var CSSVendorName = (function(){
+	var style = document.body.style;
+	if ("transform" in style)
+		return "";
+	if ("-webkit-transform" in style)
+		return "-webkit-";
+	if ("-ms-transform" in style)
+		return "-ms-";
+	if ("-0-transform" in style)
+		return "-o-";
+	return "";
+})();
+
 IX.extend(IX, {
 	isOpera : checkUA("opera"),   
 	isChrome : checkUA("chrome"),  
@@ -127,10 +140,12 @@ IX.extend(IX, {
 
 	isMSWin : checkUA("windows"),
 	
-	 isAndroid: (checkUA("gecko") && checkUA('safari') && checkUA('mobile') && checkUA('android')),
-     isAppleHD: _isIPad || _isIPhone,
-     isIPhone: _isIPhone,
-     isIPad: _isIPad,
+	isAndroid: (checkUA("gecko") && checkUA('safari') && checkUA('mobile') && checkUA('android')),
+	isAppleHD: _isIPad || _isIPhone,
+	isIPhone: _isIPhone,
+	isIPad: _isIPad,
+
+	CSSVendorName :  CSSVendorName,
 	
 	getUrlParam : function(key, defV){
 		var v = defV;
