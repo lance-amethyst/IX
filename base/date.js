@@ -35,7 +35,7 @@
 
 var Fields4Day = ["FullYear", "Month", "Date"];
 var Fields4Time = ["Hours", "Minutes", "Seconds"],
-	Fields4Week = ["Hours", "Minutes",, "Day"];
+	Fields4Week = ["Hours", "Minutes", "Day"];
 
 var FieldLimits4Day = [-1, 12, 31], FieldLimits4Time = [24, 60, 60];
 var IntervalUnits = ["刚才", "秒钟前", "分钟前", "小时前", "天前", "周前", "个月前", "年前"];
@@ -174,7 +174,7 @@ IX.IDate = function(timeInSecond) {
 	
 	return {
 		toText: function(){return dateStr;},
-		toWeek : function() {return DT_Weeks[timeValues[5]];},
+		toWeek : function() {return DT_Weeks[timeValues[5]-0];},
 		toDate: toDateStr,
 		toTime : function(ds){return [timeValues[3], timeValues[4]].join(ds || ":");},
 		toShort : function(){ return _toIntvText(new Date(), false);},
