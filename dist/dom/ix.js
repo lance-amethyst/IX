@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20151113T145951Z540
+ * Distrib No : 20151113T150409Z074
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -1909,7 +1909,7 @@ IX.extend(IX, {
 	isMSIE : checkUA("msie") && !checkUA("opera"), 
 	isMSIE7 : document.all && checkUA("msie 7.0"),
 	isBelowMSIE9 : document.all && (checkUA("msie 6.0") || checkUA("msie 7.0") || checkUA("msie 8.0") || checkUA("msie 9.0")),
-	
+
 	isMSWin : checkUA("windows"),
 	
 	isAndroid: (checkUA("gecko") && checkUA('safari') && checkUA('mobile') && checkUA('android')),

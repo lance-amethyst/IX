@@ -139,7 +139,7 @@ IX.extend(IX, {
 	isMSIE : checkUA("msie") && !checkUA("opera"), 
 	isMSIE7 : document.all && checkUA("msie 7.0"),
 	isBelowMSIE9 : document.all && (checkUA("msie 6.0") || checkUA("msie 7.0") || checkUA("msie 8.0") || checkUA("msie 9.0")),
-	
+
 	isMSWin : checkUA("windows"),
 	
 	isAndroid: (checkUA("gecko") && checkUA('safari') && checkUA('mobile') && checkUA('android')),
