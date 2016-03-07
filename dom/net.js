@@ -477,10 +477,10 @@ function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
 		},
 		error: function(data, errMsg, error){
 			unlockChannel(channel);
-			console.error(error);
+			//console.error(error);
 			_caller.onfail({
-				retCode : 0,
-				err : error.message
+				retCode : -2,
+				err : IX.isString(error) ? error : error.message
 			}, failFn, params);
 		}
 	});

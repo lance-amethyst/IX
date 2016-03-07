@@ -170,6 +170,7 @@ $XF(obj, fname) = IX.getPropertyAsFunction.
 
 	isPassword()
 	isEmail()
+	isIP()
 	
 	trunc(len)
 	tail(len)
@@ -582,6 +583,7 @@ var ScriptPattern = new RegExp( '(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)', 'i
 var FormPattern = new RegExp( '(?:<form.*?>)|(?:<\/form>)', 'img'); 
 var TrimPattern = /(^\s*)|\r/g;
 var ReplaceKeyPattern = /{[^{}]*}/g;
+var IpPattern = /^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$/;
 
 IX.extend(String.prototype, {
 	camelize: function(){ return this.replace(/\-(\w)/ig, function(B, A) {return A.toUpperCase();}); },
@@ -611,6 +613,7 @@ IX.extend(String.prototype, {
 		var email = this.trim();
 		return IX.isEmpty(email) || EmailPattern.exec(email);
 	},
+	isIP: function(){return IpPattern.test(this.trim());},
 	
 	trunc:function(len){return (this.length>len)?(this.substring(0, len-3)+"..."):this;},
 	tail:function(len){return (this.length>len)?(this.substring(this.length-len)):this;},

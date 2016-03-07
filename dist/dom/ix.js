@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20151113T150409Z074
+ * Distrib No : 20160307T154221Z464
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -181,6 +181,7 @@ $XF(obj, fname) = IX.getPropertyAsFunction.
 
 	isPassword()
 	isEmail()
+	isIP()
 	
 	trunc(len)
 	tail(len)
@@ -593,6 +594,7 @@ var ScriptPattern = new RegExp( '(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)', 'i
 var FormPattern = new RegExp( '(?:<form.*?>)|(?:<\/form>)', 'img'); 
 var TrimPattern = /(^\s*)|\r/g;
 var ReplaceKeyPattern = /{[^{}]*}/g;
+var IpPattern = /^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$/;
 
 IX.extend(String.prototype, {
 	camelize: function(){ return this.replace(/\-(\w)/ig, function(B, A) {return A.toUpperCase();}); },
@@ -622,6 +624,7 @@ IX.extend(String.prototype, {
 		var email = this.trim();
 		return IX.isEmpty(email) || EmailPattern.exec(email);
 	},
+	isIP: function(){return IpPattern.test(this.trim());},
 	
 	trunc:function(len){return (this.length>len)?(this.substring(0, len-3)+"..."):this;},
 	tail:function(len){return (this.length>len)?(this.substring(this.length-len)):this;},
@@ -2042,7 +2045,7 @@ IX.extend(IX, {
 window.$X = IX.get;
 
 var winBindMgr = new EventBindManager();
-var Win_EventList = ["click", "resize", "scroll" ,"mousedown", "mouseover", "mouseout"];
+var Win_EventList = ["click", "resize", "scroll" ,"mousedown", "mouseover", "mouseout", "keydown"];
 function _winBindHandlers(handlers, isUnbind){
 	if(!handlers) return;
 	var bindFn = winBindMgr[isUnbind ? "unbind" : "bind"];
@@ -2221,9 +2224,8 @@ IX.Dom = (function(){
 			setAttrFn(node, "data-" + name, val);
 		},
 		remove: function(node){
-			if(node)
-				if(node.parentNode)
-					node.parentNode.removeChild(node);
+			if(node && node.parentNode)
+				node.parentNode.removeChild(node);
 		},
 		isAncestor : function(node, ancestor){
 			var el = node;
@@ -2951,10 +2953,10 @@ function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
 		},
 		error: function(data, errMsg, error){
 			unlockChannel(channel);
-			console.error(error);
+			//console.error(error);
 			_caller.onfail({
-				retCode : 0,
-				err : error.message
+				retCode : -2,
+				err : IX.isString(error) ? error : error.message
 			}, failFn, params);
 		}
 	});
