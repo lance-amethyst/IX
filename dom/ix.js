@@ -1,4 +1,10 @@
 (function(){
+if (!("console" in window))
+	window.console = {
+		error : alert,
+		info : function(){},
+		log : function(){}
+	};
 /** 
  * Extended Shortcut list: 
 $X(id) = IX.get;
