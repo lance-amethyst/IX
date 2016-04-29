@@ -32,9 +32,11 @@
  * @Methods : {
   	@Methods(IX.IManager)
   	
+  	getKeys() : get all key in sequence in store
 	hasValue(key) : check if any value is mapped by key
 	put(k, v) : map k to v
 	remove(k, v) : unmap v by k
+	clear() : clear store
  * }
  * 
  * IX.IListManager will manage key/value store with ordered key list. It provide:
@@ -182,6 +184,7 @@ IX.IList = function(){
 IX.I1ToNManager = function(eqFn) {
 	var _eqFn = IX.isFn(eqFn)?eqFn : function(item, value){return item==value;};
 	var _mgr = new IX.IManager();
+	var _list = [];
 
 	var hasEntryFn = function(key) {
 		var list = _mgr.get(key);
@@ -196,6 +199,7 @@ IX.I1ToNManager = function(eqFn) {
 		put : function(k, v) {
 			if (!hasEntryFn(k)) {
 				_mgr.register(k, [v]);
+				_list.push(k);
 				return;
 			}
 			var list = _mgr.get(k);
@@ -205,8 +209,16 @@ IX.I1ToNManager = function(eqFn) {
 		remove : function(k, v){
 			var list = _mgr.get(k);
 			var idx = indexOfFn(list, v);
-			if (idx >= 0)
-				_mgr.register(k, IX.Array.splice(list, idx));
+			if (idx < 0)
+				return;
+			_mgr.register(k, IX.Array.splice(list, idx));
+			if (list.length === 1)
+				_list = IX.Array.remove(_list, k);
+		},
+		getKeys : function(){return _list;},
+		clear : function(){
+			_mgr.clear();
+			_list = [];
 		}
 	});
 };

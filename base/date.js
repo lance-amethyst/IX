@@ -11,7 +11,10 @@
  	format(date) : return a string like "YYYY-MM-DD hh:mm:ss" for date;
 	formatDate(date) : return a string  in "YYYY-MM-DD" for date
 	formatTime(date) : return a string  in "hh:mm:ss" for date
- 
+
+ 	format4Tag(date) : return a String like "YYYYMMDDhhmmss"
+ 	formatDate4Tag(date) : return a String like "YYYYMMDD"
+
  	formatStr(str) :  parse str first, next do similar as format 
  	formatDateStr(str) : similar as formatDate
  	formatTimeStr(str) : similar as formatTime
@@ -109,7 +112,15 @@ IX.Date = {
 	formatDate : function(date) {return _format(date, "Date");},
 	// return hh:mm:ss
 	formatTime : function(date) {return _format(date, "Time");},
-	
+
+	// return YYYYMMDDhhmmss
+	format4Tag : function(date){
+		return getFieldValues(date, Fields4Day.concat(Fields4Time)).join("");
+	},
+	// return YYYYMMDD
+	formatDate4Tag : function(date){
+		return getFieldValues(date, Fields4Day).join("");
+	},
 	// return YYYY-MM-DD hh:mm:ss 
 	formatStr:function(str) {
 		str = (str + " ").split(" ");

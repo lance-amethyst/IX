@@ -1,7 +1,7 @@
 (function(){
 if (!("console" in window))
 	window.console = {
-		error : alert,
+		error : window.alert,
 		info : function(){},
 		log : function(){}
 	};

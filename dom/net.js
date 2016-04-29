@@ -136,9 +136,9 @@ function ajaxParam(a, traditional) {//traditional : 规定是否使用传统的�
 		if ( traditional === undefined )
 			traditional = false;
 		if ( IX.isArray( a ) || ( !IX.isObject( a ) ) ) {
-			IX.each( a, [],function(acc, name, value, idx) {
-				if (!a.hasOwnProperty || a.hasOwnProperty(value))
-				add( name, value );
+			IX.each( a, [],function(acc, value, name, idx) {
+				if (!a.hasOwnProperty || a.hasOwnProperty(name))
+					add( name, value );
 			} );
 		} else {
 			for ( var prefix in a )
@@ -401,17 +401,24 @@ function createRouteHT(routes, ifAjax){
 
 var urlFac = (function UrlFactory(){
 	var _urls = {};
-	var genUrl = function(_route, params){
+	function genUrl(_route, params){
 		if (!_route)
 			return "";
 		var url = _route.url;
 		var _url = IX.isFn(url)?url(params):url.replaceByParams(params);
 		var _urlBase = (_route.urlType in _urls)?_urls[_route.urlType] : _urls.baseUrl;
 		return _urlBase + _url;
-	};
+	}
+	function clean4Url(_route, params){
+		if (!_route)
+			return params;
+		var url = _route.url;
+		return (IX.isFn(url)) ? params : url.filterParams(params);
+	}
 	return {
 		init : function(cfg){_urls = IX.inherit(_urls, cfg);},
-		genUrl : genUrl
+		enUrl : genUrl,
+		clean4Url : clean4Url
 	};
 })();
 
@@ -457,12 +464,17 @@ function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
 	
 	var _cbFn = IX.isFn(cbFn) ? cbFn : IX.emptyFn;
 	var isJson = _caller.dataType == 'json';
+
 	var _data = _caller.preAjax(_name, params);
+	var _url = urlFac.genUrl(_caller, _data);
+	_data = urlFac.clean4Url(_caller, _data);
+	_url += (_url.indexOf("?")>0?"&_t=":"?_t=") +  IX.getTimeInMS();
+
 	_ajaxFn({
-		url : urlFac.genUrl(_caller, params),
+		url : _url,
 		type :  _caller.type,
 		contentType : isJson ? 'application/json' : 'application/x-www-form-urlencoded',
-		data : isJson ? JSON.stringify(_data) : _data,
+		data : isJson && _caller.type != "GET" ? JSON.stringify(_data) : _data,
 		success : function(data) {
 			unlockChannel(channel);
 			var _data = tryJSONParse(data);
@@ -499,8 +511,6 @@ function createAjaxCaller(routes){
 		var _caller = _callerHT[_name];
 		if (!_caller || !IX.isFn(_ajaxEngineFn))
 			return;
-		if (!$XP(params, '_t')) 
-			params = IX.inherit(params, {_t : IX.getTimeInMS()});
 		executeCaller(_caller, _ajaxEngineFn, _name, params, cbFn, failFn);
 	};
 }

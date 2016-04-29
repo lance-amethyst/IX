@@ -184,7 +184,8 @@ $XF(obj, fname) = IX.getPropertyAsFunction.
 	replaceUrls(_r, _f)
 	regSplit(reg)	
 	pick4Replace()
-	replaceByParams(data)
+	replaceByParams([[name, param],...])
+	filterParams({name: value}): return {name:value} which name in string
 	toSafe()
  * }
  *  
@@ -636,6 +637,19 @@ IX.extend(String.prototype, {
 		return IX.loop(this.match(ReplaceKeyPattern), this, function(acc, item){
 			var _key = item && item.length>2? item.slice(1,-1) : "";
 			return IX.isEmpty(_key)?acc:acc.replaceAll(item, $XP(data, _key, ""));
+		});
+	},
+	filterParams : function(params){
+		var ht =  IX.loop(this.match(ReplaceKeyPattern), {}, function(acc, item){
+			var _key = item && item.length>2? item.slice(1,-1) : "";
+			if (!IX.isEmpty(_key)) 
+				acc[_key] = true;
+			return acc;
+		});
+		return IX.each(params, {}, function(acc, value, key){
+			if (!(key in ht))
+				acc[key] = value;
+			return acc;
 		});
 	},
 	toSafe : function(){return this.replace(/\$/g, "&#36;");}
