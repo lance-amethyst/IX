@@ -5,7 +5,7 @@ module.exports = function (grunt) {
 	function getFilePaths(filenames, basedir){
 		return IX.map(filenames.split(","), function(fname){return basedir + "/" + fname + ".js";});
 	}
-	var commonJsFiles = getFilePaths("ix,array,condition,ds,date,misc,tpl,task", "base");
+	var commonJsFiles = getFilePaths("ix,array,condition,ds,math,date,misc,tpl,task", "base");
 	var domJsFiles = getFilePaths("ix,net,misc", "dom");
 	var nodeJsFiles =  getFilePaths("ix", "node");
 
