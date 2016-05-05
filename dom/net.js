@@ -417,7 +417,7 @@ var urlFac = (function UrlFactory(){
 	}
 	return {
 		init : function(cfg){_urls = IX.inherit(_urls, cfg);},
-		enUrl : genUrl,
+		genUrl : genUrl,
 		clean4Url : clean4Url
 	};
 })();

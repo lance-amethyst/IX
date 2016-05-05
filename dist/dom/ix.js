@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20160505T110130Z337
+ * Distrib No : 20160505T171714Z634
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -2979,7 +2979,7 @@ var urlFac = (function UrlFactory(){
 	}
 	return {
 		init : function(cfg){_urls = IX.inherit(_urls, cfg);},
-		enUrl : genUrl,
+		genUrl : genUrl,
 		clean4Url : clean4Url
 	};
 })();
