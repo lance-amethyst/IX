@@ -83,7 +83,7 @@ $XF(obj, fname) = IX.getPropertyAsFunction.
  	cvtToArray(obj) : return an array from converted obj if possible, otherwise return []
  *
  * Namespace utilities:
-  	ns(nsname): make sure nsname existed in current window/global. If not, create it as {}. 
+  	ns(nsname): return the object identified by nsname; if not exist, create {} for it and return
  	nsExisted(nsname) : return if nsname is existed in current window/global.
  	getNS(nsname): return the object identified by nsname if existed in current window/global. 
  		Otherwise, return undefined.
@@ -340,7 +340,10 @@ function assignToObjFn(obj, nsname, value){
 }
 
 var nsUtils = {
-	ns : function(nsname){objLoopFn(ixGlobal, nsname, _nsCheck);},
+	ns : function(nsname){
+		objLoopFn(ixGlobal, nsname, _nsCheck);
+		return objLoopFn(ixGlobal, nsname, _nsGet);
+	},
 	nsExisted : function(nsname){return objLoopFn(ixGlobal, nsname, _nsExisted);},
 	getNS : function(nsname){return objLoopFn(ixGlobal, nsname, _nsGet);},
 	setNS : function(nsname, value){assignToObjFn(ixGlobal, nsname, value);}
