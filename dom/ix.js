@@ -34,6 +34,7 @@ $Xc = IX.Cookie;
 	isAppleHD
 	isIPhone
 	isIPad
+	isMac
 	
 	getUrlParam(key, defV) : get value from url query string by key , or return defV if key not exist.
 	toAnchor(name) : reset hash for current page;
@@ -152,6 +153,7 @@ IX.extend(IX, {
 	isAppleHD: _isIPad || _isIPhone,
 	isIPhone: _isIPhone,
 	isIPad: _isIPad,
+	isMac : checkUA('macintosh'),
 
 	CSSVendorName :  CSSVendorName,
 	

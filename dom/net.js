@@ -455,16 +455,29 @@ function tryJSONParse(data){
 	return data;
 }
 function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
+	var _cbFn = IX.isFn(cbFn) ? cbFn : IX.emptyFn;
+	function deliveryResult(_data){
+		if (!_checkResultFn(_data))
+			_caller.onfail(_data, failFn, params, {
+				name : _name,
+				success : cbFn,
+				fail :failFn
+			});
+		else
+			_caller.onsuccess(_data, _cbFn, params, {
+				name : _name,
+				success : cbFn,
+				fail :failFn
+			});
+	}
+
 	var channel = $XP(params, "_channel_", _caller.channel);
 	if (!tryLockChannel(channel))
-		return _caller.onfail({
+		return deliveryResult({
 			retCode : 0,
 			err : "channel in using:"+ channel
-		}, failFn, params);	
-	
-	var _cbFn = IX.isFn(cbFn) ? cbFn : IX.emptyFn;
+		});
 	var isJson = _caller.dataType == 'json';
-
 	var _data = _caller.preAjax(_name, params);
 	var _url = urlFac.genUrl(_caller, _data);
 	_data = urlFac.clean4Url(_caller, _data);
@@ -477,33 +490,34 @@ function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
 		data : isJson && _caller.type != "GET" ? JSON.stringify(_data) : _data,
 		success : function(data) {
 			unlockChannel(channel);
-			var _data = tryJSONParse(data);
-			if (_data.retCode!=1)
-				_caller.onfail(_data, failFn, params);
-			else
-				_caller.onsuccess(_data, _cbFn, params);
+			deliveryResult(tryJSONParse(data));
 		},
 		fail: function(data){
 			unlockChannel(channel);
-			_caller.onfail(tryJSONParse(data), failFn, params);
+			deliveryResult(IX.inherit({retCode: 0}, tryJSONParse(data)));
 		},
 		error: function(data, errMsg, error){
 			unlockChannel(channel);
 			//console.error(error);
-			_caller.onfail({
+			deliveryResult({
 				retCode : -2,
 				err : IX.isString(error) ? error : error.message
-			}, failFn, params);
+			});
 		}
 	});
 	_caller.postAjax(_name, params, _cbFn);
 }
 
 var _ajaxEngineFn = null;
+var _checkResultFn = function(data){
+	return data.retCode==1;
+};
 function initAjaxEngine(cfg){
 	if (cfg && IX.isFn(cfg.ajaxFn))
 		_ajaxEngineFn = cfg.ajaxFn;
-	urlFac.init(cfg);		
+	if (cfg && IX.isFn(cfg.checkResultFn))
+		_checkResultFn = cfg.checkResultFn;
+	urlFac.init(cfg);
 }
 function createAjaxCaller(routes){
 	var _callerHT = createRouteHT(routes, true);
