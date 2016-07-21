@@ -52,7 +52,7 @@
 	getKeys() : get all key in sequence in store
 	getByKeys(keys) :  get all values mapped by keys
 	getAll() : get all values in store
-	iterate(fn) :  for each value, iterate to execure fn(value, key)
+	iterate(fn) :  for each value, iterate to execure fn(value, key, idx)
 	getFirst() : get the first meaningful value
 
 	append(key) :  only append key to store's key list, will not changed value
@@ -249,7 +249,7 @@ IX.IListManager = function() {
 		getKeys : function() {return _list.getList();},
 		getByKeys : function(keys){return listFn(keys);},
 		getAll : function() {return listFn(_list.getList());},
-		iterate: function(fn){IX.iterate(_list.getList(), function(item){fn(_super.get(item), item);}); },
+		iterate: function(fn){IX.iterate(_list.getList(), function(item, idx){fn(_super.get(item), item, idx);}); },
 		getFirst : function() {
 			var arr = _list.getList();
 			if (!arr || arr.length === 0)
