@@ -1,6 +1,10 @@
 (function(){
 /**
  * IX.Date is a set of utilities for Date to convert to or deconvert to data string. It includes: {
+	TicksInHour : constant Number,
+	TicksInDay : constant Number,
+	UTCDeltaTicks :  constant Number,
+
   	setDS(v) : set separator between YYYY MM DD, will affect all date utilities;
  	setTS(v) : set separator between hh mm ss, will affect all date utilities;
  	setUTC(bool) : set if using UTC
@@ -19,6 +23,7 @@
  	formatDateStr(str) : similar as formatDate
  	formatTimeStr(str) : similar as formatTime
 	
+	getDateOfHours(date,numOfHours),
 	getDateOfDays(date, numOfDays),
 	getDateOfWeeks(date, numOfWeeks),
 	getDateOfMonths(date, numOfMonths),
@@ -48,6 +53,7 @@ var Fields4Day = ["FullYear", "Month", "Date"];
 var Fields4Time = ["Hours", "Minutes", "Seconds"],
 	Fields4Week = ["Hours", "Minutes", "Day"];
 
+var TicksInDay = 86400000, TicksInHour = 3600000, TicksInMinute = 60000;
 var FieldLimits4Day = [-1, 12, 31], FieldLimits4Time = [24, 60, 60];
 var IntervalUnits = ["刚才", "秒钟前", "分钟前", "小时前", "天前", "周前", "个月前", "年前"];
 var IntervalCounts = [0, 10, 60, 3600, 86400, 604800, 2592000, 31536000];
@@ -113,11 +119,11 @@ function _format(date, type) {
 
 function getDateOfDays(date, numOfDays){
 	var tick = date.getTime();
-	return new Date(tick + numOfDays * 86400000);
+	return new Date(tick + numOfDays * TicksInDay);
 }
 function getDateOfMonths(date, numOfMonths){
 	var tick = date.getTime();
-	var _p1 = tick % 86400000, _p2 = (tick - _p1) / 86400000;
+	var _p1 = tick % TicksInDay, _p2 = (tick - _p1) / TicksInDay;
 
 	var ymd = _getFieldValues(date, Fields4Day);
 	var m = ymd[1] + numOfMonths;
@@ -127,7 +133,7 @@ function getDateOfMonths(date, numOfMonths){
 	tick = d.getTime();
 	ymd = _getFieldValues(d, Fields4Day);
 	if (ymd[1] != _m)
-		tick -= ymd[2] * 86400000;
+		tick -= ymd[2] * TicksInDay;
 
 	return new Date(tick + _p1);
 }
@@ -135,7 +141,18 @@ function getDateOfMonths(date, numOfMonths){
 function isValid(str, isDate){
 	return isValidDate(str.split(isDate?ds :ts, 3), isDate);
 }
+var UTCDeltaTicks = (function(){
+	var d = new Date("2000-1-1");
+	var tick = d.getTime();
+	return tick - (new Date(Math.floor(tick/TicksInDay) * TicksInDay)).getTime();
+})();
+
 IX.Date = {
+	TicksInMinute : TicksInMinute,
+	TicksInHour : TicksInHour,
+	TicksInDay : TicksInDay,
+	UTCDeltaTicks :  UTCDeltaTicks,
+
 	setDS : function(v){ds = v;},
 	setTS : function(v){ts = v;},
 	setUTC : function(isUTC){_isUTC= isUTC;}, 
@@ -167,6 +184,10 @@ IX.Date = {
 	// return hh:mm:ss
 	formatTimeStr:function(str){return _formatStr(str, ts);},
 
+	getDateOfHours : function(date,numOfHours){
+		var tick = date.getTime();
+		return new Date(tick - TicksInHour * Math.abs(numOfHours));
+	},
 	getDateOfDays : function(date, numOfDays){
 		return getDateOfDays(date, numOfDays);
 	},
@@ -185,13 +206,16 @@ IX.Date = {
 	formatBySec : function(tickInSec, withTime){
 		return !tickInSec?"":_format(new Date(tickInSec*1000), withTime?"":"Date");
 	},
+	//BE Careful : 
+	//  new Date("2016-08-30") ==> Tue Aug 30 2016 08:00:00 GMT+0800 (CST)
+	//  new Date("2016/08/30") ==> Tue Aug 30 2016 00:00:00 GMT+0800 (CST)	
 	getTickInSec : function(str){
 		var tickInMS = null;
 		if (str && str instanceof Date)
 			tickInMS =  str.getTime();
 		else if (IX.isString(str) && !IX.isEmpty(str)) {
 			var sp = str.replace(/[0-9|:|\ ]/g, '')[0];
-			tickInMS = (new Date(str.replaceAll(sp, "/"))).getTime();
+			tickInMS = (new Date(str.replaceAll(sp, "-"))).getTime();
 		}
 		return isNaN(tickInMS) ? null : Math.ceil(tickInMS/1000);
 	},
@@ -210,7 +234,6 @@ IX.IDate = function(timeInSecond) {
 	var date = new Date(timeInMS);
 	var dateStr = _format(date);
 	var timeValues = getFieldValues(date, [].concat(Fields4Day, Fields4Week, Fields4Time[2]));
-	
 	function toDateStr(includeYear){
 		var curTime = getFieldValues(new Date(), Fields4Day);
 		includeYear = includeYear || (curTime[0]>timeValues[0]);
@@ -244,7 +267,7 @@ IX.IDate = function(timeInSecond) {
 		toInterval : function(tsInSec){
 			var _date = tsInSec?(new Date(tsInSec*1000)) :(new Date());  
 			var _tsInMS = _date.getTime();
-			if(_tsInMS- timeInMS<3600000) // inner one hour
+			if(_tsInMS- timeInMS<TicksInHour) // inner one hour
 				return getText4Interval(timeInMS, _tsInMS);
 			return _toIntvText(_date, true);
 		},
