@@ -13,7 +13,8 @@ try {
 }catch(ex){}
 var ixGlobal = isInDom?window: global;
 
-IX_GLOBAL = ixGlobal;
+var IX_GLOBAL = ixGlobal;
+IX_GLOBAL.IX_GLOBAL = IX_GLOBAL;
 IX_GLOBAL.IX_DOM_MODE = isInDom;
 
 IX_GLOBAL.IX_VERSION = "1.0";
