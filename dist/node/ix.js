@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20170228T115651Z111
+ * Distrib No : 20170308T142844Z597
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -1975,7 +1975,7 @@ function chownFileOwner(filePath){
 		childProcess.exec("chown -R " + global.processOwner  + " " + filePath);
 }
 function _safeMkdirSync(_path){
-	var dirs = _path.split(path.sep), currentDir = "";
+	var dirs = path.normalize(_path).split(path.sep), currentDir = "";
 	dirs.shift();
 	try {
 		dirs.forEach(function(dir){
@@ -1987,7 +1987,8 @@ function _safeMkdirSync(_path){
 		console.error("Exception as mkdir :" + currentDir + "::" +  ex);
 	}
 }
-function saveFileIfNotExist(filePath, filename, fileData, cbFn){
+function saveFileIfNotExist(_filePath, filename, fileData, cbFn){
+	var filePath = path.normalize(_filePath);
 	var fileName = filePath + path.sep +filename;
 	if (fs.existsSync(fileName))
 		return cbFn(new Error("File existed: " + fileName), fileName);
@@ -2005,7 +2006,9 @@ function saveFileIfNotExist(filePath, filename, fileData, cbFn){
 		cbFn(err, fileName);
 	});
 }
-function safeChkFileSync(dir, subdir, filename){
+function safeChkFileSync(_dir, _subdir, filename){
+	var dir = path.normalize(_dir);
+	var subdir = path.normalize(_subdir);
 	var filePath = dir + path.sep + subdir;
 	var fileName = filePath + path.sep + filename;
 	if (debugIsAllow("file"))
@@ -2048,7 +2051,7 @@ function safeWriteFileSync(filePath, fileData){
 }
 
 function iterDirSync(rootPath, filePath, iterFn){
-	var _path = rootPath + filePath;
+	var _path = path.normalize(rootPath + filePath);
 	var file = fs.statSync(_path);
 	if (file.isDirectory())
 		(fs.readdirSync(_path) || []).forEach(function(fname){
@@ -2077,7 +2080,7 @@ function setLogPath(logPath, filename) {
 		return;
 	if (!fs.existsSync(logPath))
 		_safeMkdirSync(logPath);
-	logFile = logPath + path.sep + filename;
+	logFile = path.normalize(logPath + path.sep + filename);
 	try{
 		fs.appendFileSync(logFile + '.log', "\n");	
 		console.log("success set log path : " + logFile);
