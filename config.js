@@ -6,7 +6,9 @@ module.exports = {
 		tiny: {
 			src: ["dist/hdr.js", "tiny/hdr.js",
 				"base/ix.js","base/array.js",
-				"base/ds.js","base/math.js","base/date.js"
+				"base/ds.js","base/math.js","base/date.js",
+
+				"dom/ix.js"
 			],
 			dest: 'dist/tiny/ix.js'
 		},
