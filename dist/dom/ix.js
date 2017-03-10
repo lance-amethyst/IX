@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20170309T103711Z604
+ * Distrib No : 20170310T153608Z475
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -2168,6 +2168,14 @@ function EventBindManager(){
 		unbind : _unbind
 	};
 }
+
+function listenEvt(el, eName, fn){
+	ix_attachEvent(el, eName, fn);
+	return {
+		remove : function(){ix_detachEvent(el, eName, fn);}
+	};
+}
+
 var DOM_EventList = [
 	"click", "dblclick", "focus", "blur", 
 	"keyup", "keydown", "keypress",
@@ -2188,6 +2196,7 @@ function _bindHandlers(el, handlers, isUnbind){
 IX.extend(IX, {
 	bind : function(el, handlers) {_bindHandlers(el, handlers);},		
 	unbind : function(el, handlers) {_bindHandlers(el, handlers, true);},
+	listen : listenEvt,
 	
 	getComputedStyle : $XP(document, "defaultView.getComputedStyle")? function(el){
 		return document.defaultView.getComputedStyle(el);
@@ -2263,6 +2272,7 @@ IX.win =  {
 
 	bind : function(handlers){_winBindHandlers(handlers);},
 	unbind : function(handlerIds){_winBindHandlers(handlerIds, true);},
+	listen : function(eName, fn){return listenEvt(window, eName, fn);},
 	scrollTo : function(x,y){
 		window.scrollTo(x, y);
 		winBindMgr.exec("scroll", null);
