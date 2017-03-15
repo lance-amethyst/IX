@@ -41,6 +41,7 @@ $Xc = IX.Cookie;
 
 	bind(el, handlers) : bind event handler on el
 	unbind(el, handlers) : remove event handler on el
+	listen(el, evtName, handler) : bind evt handler on el, and return remove method to unbind;
 	
 	getComputedStyle(el) : get the computed style after render in browser;
 	decodeTXT(txt) : decode from encoded text,
