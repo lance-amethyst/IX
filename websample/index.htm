@@ -24,6 +24,36 @@ $().ready(function(){
 	$X("container").innerHTML = "All files loaded!";
 });
 
+
+function test2(){
+	console.log("do test2");
+}
+function test1(){
+	console.log("do test1");
+	$Xw.unbind({ resize: test1 });
+}
+function test0(){
+	console.log("do test0");
+	$Xw.unbind({ resize: test0 });
+	console.log("attach test1");
+	$Xw.bind({ resize: test1 });
+}
+$Xw.bind({ resize: test0 });
+
+$Xw.bind({ resize: test2 });
+
+//output:
+/*
+do test0
+attach test1
+do test2
+do test2
+do test1
+do test2
+do test2
+...
+*/
+
 </script>
 	
 </html>
